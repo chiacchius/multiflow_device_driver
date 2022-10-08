@@ -1,0 +1,13 @@
+/home/chacchius/Downloads/clion-2022.2.3/bin/cmake/linux/bin/cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_MAKE_PROGRAM=/home/chacchius/Downloads/clion-2022.2.3/bin/ninja/linux/ninja -G Ninja -S /home/chacchius/Desktop/SOAproject -B /home/chacchius/Desktop/SOAproject/cmake-build-debug
+-- Configuring done
+CMake Error at CMakeLists.txt:6 (add_executable):
+  Cannot find source file:
+
+    cmake-build-debug/user/user.c
+
+
+CMake Error at CMakeLists.txt:6 (add_executable):
+  No SOURCES given to target: SOAproject
+
+
+CMake Generate step failed.  Build files cannot be regenerated correctly.
