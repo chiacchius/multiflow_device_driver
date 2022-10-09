@@ -72,6 +72,7 @@ int add_in_waitqueue(unsigned long timeout, struct mutex *synchronizer, wait_que
     }
 
 
+    printk("%s: process in wait, try to acquire the lock until the timeout expires\n", MODNAME, current->pid);
 
     //se si riesce a prendere il lock prima della scadenza del timeout allora ret=1, altrimenti ret =0
     return wait_event_timeout(*wait_queue, mutex_trylock(synchronizer), msecs_to_jiffies(timeout));

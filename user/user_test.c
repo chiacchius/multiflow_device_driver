@@ -35,6 +35,12 @@ typedef struct settings{
 }Settings;
 
 
+
+
+
+
+
+
 char buff[4096];
 
 Settings settings;
@@ -43,6 +49,7 @@ int main(int argc, char *argv[]){
 
     char* path;
     int major, minor;
+    int op;
 
     system("clear");
 
@@ -96,12 +103,52 @@ int main(int argc, char *argv[]){
     printf("\t- Blocking: NON_BLOCKING\n");
     printf("\t- Timeout: %d\n", settings.timeout);
 
-    char prova[128];
+    /*char prova[128];
     sprintf(prova, "echo 'Hello' > /dev/multiflow_device%d\n", minor);
     printf("Hai scritto: %s\n", prova);
-    system(prova);
-    show_operations();
+    system(prova);*/
 
+
+
+
+
+    while(1){
+
+
+        show_operations();
+        scanf("%d", &op);
+
+        
+
+        switch(op){
+
+            case 1: //write
+
+
+            case 2: //read
+
+
+            case 3: //get_settings
+
+
+            case 4: break;
+
+
+
+        }
+
+      
+
+
+
+
+
+
+    }
+    
+
+    close(fd);
+    return NULL;
 
 
     return 0;
@@ -112,12 +159,12 @@ void show_operations(){
 	
 	printf("*----------------------------------------------------------*\n");
 	printf("*------------------------- OPERATIONS ---------------------*\n");
-        printf("*----------------------------------------------------------*\n");
+    printf("*----------------------------------------------------------*\n");
 	printf("select the number corresponding to the operation you want to carry out\n");
 	printf("1) write on device\n2) read from device\n3) change settings\n4) exit\n");
 	printf("*----------------------------------------------------------*\n");
-        printf("*----------------------------------------------------------*\n");
-        printf("*----------------------------------------------------------*\n");
+    printf("*----------------------------------------------------------*\n");
+    printf("*----------------------------------------------------------*\n");
 
 
 }
