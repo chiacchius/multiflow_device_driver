@@ -27,7 +27,7 @@ typedef struct _flow{
 
     struct mutex operation_synchronizer;        //lock di gestione dei thread concorrenti
     Object_content *obj_head;                   //inizio della lista collegata in cui sono presenti i blocchi di bytes scritti
-    wait_queue_head_t *waitQueueHead;           //wait queue in cui sono presenti i task in sleep
+    wait_queue_head_t wait_queue;           	//wait queue in cui sono presenti i task in sleep
 
 } Flow;
 

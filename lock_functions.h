@@ -28,14 +28,14 @@ int try_lock(Object_state *object, Session *session, int minor) {
             if (session->priority == HIGH_PRIORITY){
 
                 hp_threads[minor]++;
-                ret = add_in_waitqueue(session->timeout, &actual_flow->operation_synchronizer, actual_flow->waitQueueHead);
+                ret = add_in_waitqueue(session->timeout, &actual_flow->operation_synchronizer, &actual_flow->wait_queue);
                 hp_threads[minor]--;
 
             }
             else{
 
                 lp_threads[minor]++;
-                ret = add_in_waitqueue(session->timeout, &actual_flow->operation_synchronizer, actual_flow->waitQueueHead);
+                ret = add_in_waitqueue(session->timeout, &actual_flow->operation_synchronizer, &actual_flow->wait_queue);
                 lp_threads[minor]--;
 
             }

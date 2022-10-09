@@ -154,7 +154,7 @@ static ssize_t dev_write(struct file *filp, const char *buff, size_t len, loff_t
     }
 
     mutex_unlock(&(flow->operation_synchronizer));
-    wake_up(flow->waitQueueHead);
+    wake_up(&(flow->wait_queue));
     printk("%s: Lock released.\n", MODNAME);
 
     return new_bytes;
@@ -225,7 +225,8 @@ int init_module(void){
         for (j=0; j<FLOWS; j++) {
 
             mutex_init(&(objects[i].flows[j].operation_synchronizer));
-            //init_waitqueue_head(objects[i].flows[j].waitQueueHead);
+
+            
 
             //allocazione di memoria per le operazioni di write
             objects[i].flows[j].obj_head = kzalloc(sizeof(Object_content), GFP_KERNEL);
@@ -238,6 +239,8 @@ int init_module(void){
             objects[i].flows[j].obj_head->next=NULL;
             objects[i].flows[j].obj_head->last_offset_read = 0;
             objects[i].flows[j].obj_head->stream_content=NULL;
+            
+            init_waitqueue_head(&(objects[i].flows[j].wait_queue));
 
 
         }

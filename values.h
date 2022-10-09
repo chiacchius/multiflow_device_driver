@@ -31,6 +31,7 @@
 #define MODNAME "MFLOW-DEV"
 #define DEVICE_NAME "multiflow_device"
 
+#define MINORS 128  // Il numero di minors che il device può gestire è 128
 #define FLOWS 2
 
 
@@ -44,7 +45,7 @@
 #define ENABLED 1
 
 
-#define MINORS 128  // Il numero di minors che il device può gestire è 128
+
 
 static int enabled_device[MINORS];
 module_param_array(enabled_device, int, NULL, 0660);

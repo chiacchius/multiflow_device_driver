@@ -144,7 +144,7 @@ void delayed_write(struct work_struct *delayed_work){
 
     kfree(packed_work);
     mutex_unlock(&(flow->operation_synchronizer));
-    wake_up(flow->waitQueueHead);
+    wake_up(&(flow->wait_queue));
     printk("%s: Lock released.\n", MODNAME);
 
 
@@ -173,7 +173,7 @@ int read(Object_state *object, Session *session, char* buff, size_t len, int pri
     if (current_node->stream_content == NULL) {
         printk("%s: no data in device\n", MODNAME);
         mutex_unlock(&(flow->operation_synchronizer));
-        wake_up(flow->waitQueueHead);
+        wake_up(&(flow->wait_queue));
         printk("%s: lock released\n", MODNAME);
         return -1;
     }
@@ -214,7 +214,7 @@ int read(Object_state *object, Session *session, char* buff, size_t len, int pri
 
             //rilascio il lock e finisco l'iterazione
             mutex_unlock(&(flow->operation_synchronizer));
-            wake_up(flow->waitQueueHead);
+            wake_up(&(flow->wait_queue));
             printk("%s: Read completed and lock released.\n", MODNAME);
             break;
 
