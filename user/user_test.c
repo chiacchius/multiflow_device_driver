@@ -109,7 +109,15 @@ int main(int argc, char *argv[]){
 
 
 void show_operations(){
-
+	
+	printf("*----------------------------------------------------------*\n");
+	printf("*------------------------- OPERATIONS ---------------------*\n");
+        printf("*----------------------------------------------------------*\n");
+	printf("select the number corresponding to the operation you want to carry out\n");
+	printf("1) write on device\n2) read from device\n3) change settings\n4) exit\n");
+	printf("*----------------------------------------------------------*\n");
+        printf("*----------------------------------------------------------*\n");
+        printf("*----------------------------------------------------------*\n");
 
 
 }
