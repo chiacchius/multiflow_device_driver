@@ -21,7 +21,7 @@
 #define NON_BLOCKING 1
 
 
-
+#define MAX_BYTES 1000000
 
 void show_operations();
 
@@ -48,8 +48,11 @@ Settings settings;
 int main(int argc, char *argv[]){
 
     char* path;
+    int ret;
     int major, minor;
     int op;
+    char *buff;
+    char write_buff[1000000];
 
     system("clear");
 
@@ -118,11 +121,19 @@ int main(int argc, char *argv[]){
         show_operations();
         scanf("%d", &op);
 
-        
+
 
         switch(op){
 
-            case 1: //write
+            case 1: //write 
+
+            memset(write_buff, 0, MAX_BYTES);
+            printf("What do you want to write?\n");
+            scanf("%[^\n]s, write_buff);
+            ret = write(fd, write_buff, strlen(write_buff));
+            if (ret==-1) printf("Could not write on device: %s\n", strerror(errno));
+            else printf("Written %d bytes on device\n", strlen(write_buff));
+            break;
 
 
             case 2: //read
