@@ -11,6 +11,9 @@
 #include <errno.h>
 
 
+#define min(a,b) (((a)<(b))?(a):(b))
+#define max(a,b) (((a)>(b))?(a):(b))
+
 #define MINORS 128
 
 
@@ -21,7 +24,7 @@
 #define NON_BLOCKING 1
 
 
-#define MAX_BYTES 1000000
+#define MAX_BYTES 1024
 
 void show_operations();
 
@@ -41,7 +44,9 @@ typedef struct settings{
 
 
 
-char buff[4096];
+char buff[MAX_BYTES];
+char rw_buff[MAX_BYTES];
+int bytes_num;
 
 Settings settings;
 
@@ -52,7 +57,7 @@ int main(int argc, char *argv[]){
     int major, minor;
     char op[10];
     int operation;
-    char write_buff[1000000];
+    
 
     system("clear");
 
@@ -121,7 +126,7 @@ int main(int argc, char *argv[]){
         show_operations();
         memset(op, 0, 10);
         fgets(op, sizeof(op), stdin);
-	operation = atoi(op);
+	    operation = atoi(op);
 	
 	
         switch(operation){
@@ -129,19 +134,31 @@ int main(int argc, char *argv[]){
 
             case 1: //write 
             
+
             
-	
-            memset(write_buff, 0, MAX_BYTES);
+	        
+            memset(rw_buff, 0, MAX_BYTES);
             printf("What do you want to write?: ");
-            fgets(write_buff, sizeof(write_buff), stdin);
-            ret = write(fd, write_buff, strlen(write_buff));
+            fgets(rw_buff, sizeof(rw_buff), stdin);
+            ret = write(fd, rw_buff, min(MAX_BYTES, strlen(rw_buff)));
             if (ret==-1) printf("Could not write on device: %s\n", strerror(errno));
-            else printf("Written %ld bytes on device: %s\n", strlen(write_buff), write_buff);
+            else printf("Written %ld bytes on device: %s\n", min(MAX_BYTES, strlen(rw_buff)), rw_buff);
             
             break;
 
 
             case 2: //read
+
+            memset(buff, 0, MAX_BYTES);
+            memset(rw_buff, 0, MAX_BYTES);
+            printf("\nHow many bytes do you want to read?: ");
+            fgets(buff, sizeof(buff), stdin);
+            bytes_num = atoi(buff);
+            ret = read(fd, rw_buff, min(MAX_BYTES, bytes_num));
+            if (ret==-1) printf("Could not read from device: %s\n", strerror(errno));
+            else printf("Read %ld bytes from device: %s\n", min(MAX_BYTES, strlen(rw_buff)), rw_buff);
+
+            break;
 
 
             case 3: //get_settings
