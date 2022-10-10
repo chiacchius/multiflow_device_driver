@@ -111,13 +111,7 @@ int main(int argc, char *argv[]){
     printf("\t- Blocking: NON_BLOCKING\n");
     printf("\t- Timeout: %d\n", settings.timeout);
 
-    /*char prova[128];
-    sprintf(prova, "echo 'Hello' > /dev/multiflow_device%d\n", minor);
-    printf("Hai scritto: %s\n", prova);
-    system(prova);*/
-
-
-
+  
 
 
     while(operation!=4){
@@ -137,6 +131,7 @@ int main(int argc, char *argv[]){
 
             
 	        
+
             memset(rw_buff, 0, MAX_BYTES);
             printf("What do you want to write?: ");
             fgets(rw_buff, sizeof(rw_buff), stdin);
@@ -149,6 +144,7 @@ int main(int argc, char *argv[]){
 
             case 2: //read
 
+
             memset(buff, 0, MAX_BYTES);
             memset(rw_buff, 0, MAX_BYTES);
             printf("\nHow many bytes do you want to read?: ");
@@ -157,6 +153,7 @@ int main(int argc, char *argv[]){
             ret = read(fd, rw_buff, min(MAX_BYTES, bytes_num));
             if (ret==-1) printf("Could not read from device: %s\n", strerror(errno));
             else printf("Read %ld bytes from device: %s\n", min(MAX_BYTES, strlen(rw_buff)), rw_buff);
+
 
             break;
 
