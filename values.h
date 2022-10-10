@@ -44,8 +44,13 @@
 #define NOT_ENABLED 0
 #define ENABLED 1
 
-#define READ_ERROR -1
-#define READ_EMPTY -2
+
+
+#define HIGH_PRIORITY_IOCTL 1
+#define LOW_PRIORITY_IOCTL 2
+#define BLOCKING_IOCTL 3
+#define NON_BLOCKING_IOCTL 4
+#define TIMEOUT_IOCTL 5
 
 
 static int enabled_device[MINORS];

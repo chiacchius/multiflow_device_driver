@@ -51,6 +51,51 @@ static struct file_operations fops = {
 
 static long dev_ioctl(struct file *filp, unsigned int command, unsigned long param) {
 
+    Session *session = filp->private_data;
+
+    switch(command){
+
+
+        case LOW_PRIORITY_IOCTL:
+
+            session->priority = LOW_PRIORITY;
+            printk("%s: User decided to set priority to: LOW_PRIORITY\n", MODNAME);
+            break;
+
+        case HIGH_PRIORITY_IOCTL:
+
+            session->priority = HIGH_PRIORITY;
+            printk("%s: User decided to set priority to: HIGH_PRIORITY\n", MODNAME);
+            break;
+
+
+        case BLOCKING_IOCTL:
+
+            session->priority = BLOCKING;
+            printk("%s: User decided to set blocking to: BLOCKING\n", MODNAME);
+            break;
+
+
+        case NON_BLOCKING_IOCTL:
+
+            session->priority = NON_BLOCKING;
+            printk("%s: User decided to set blocking to: NON_BLOCKING\n", MODNAME);
+            break;
+
+
+        case TIMEOUT_IOCTL:
+
+            session->timeout = param;
+            printk("%s: User decided to set timeout to: %d\n", MODNAME,  param);
+            break;
+
+        default:
+
+            printk("%s: Illegal command by user %d\n", MODNAME);
+
+
+    }
+
     return 0;
 }
 

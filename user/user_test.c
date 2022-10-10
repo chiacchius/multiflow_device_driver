@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <sys/ioctl.h>
 
 
 #define min(a,b) (((a)<(b))?(a):(b))
@@ -27,6 +28,7 @@
 #define MAX_BYTES 1024
 
 void show_operations();
+void new_settings();
 
 
 typedef struct settings{
@@ -47,6 +49,9 @@ typedef struct settings{
 char buff[MAX_BYTES];
 char rw_buff[MAX_BYTES];
 int bytes_num;
+int fd;
+
+
 
 Settings settings;
 
@@ -93,7 +98,7 @@ int main(int argc, char *argv[]){
 
     char *device = (char *)strdup(buff);
 
-    int fd = open(device, O_RDWR);
+    fd = open(device, O_RDWR);
 
     if (fd == -1)
     {
@@ -151,19 +156,28 @@ int main(int argc, char *argv[]){
             fgets(buff, sizeof(buff), stdin);
             bytes_num = atoi(buff);
             ret = read(fd, rw_buff, min(MAX_BYTES, bytes_num));
-            if (ret==READ_ERROR) printf("Could not read from device\n");
+            if (ret==-1) printf("Could not read from device\n");
             else printf("Read %ld bytes from device: %s\n", min(MAX_BYTES, strlen(rw_buff)), rw_buff);
 
 
             break;
 
 
-            case 3: //get_settings
+            case 3: 
+
+            new_settings();
+
 
 
             case 4: 
             
             break;
+
+
+            default:
+
+            printf("Illegal command: retry\n");
+
 
 
 
@@ -182,6 +196,113 @@ int main(int argc, char *argv[]){
     close(fd);
 
     return 0;
+}
+
+
+void new_settings(){
+
+    char op[10];
+    int operation=0;
+    char dec[10];
+    int decision;
+    int ret;
+    int timeout;
+
+    system("clear");
+    printf("*----------------------------------------------------------*\n");
+    printf("YOU CAN CHOOSE YOUR SESSION SETTINGS:\n");
+    printf("1) Set priority\n");
+    printf("2) Set blocking\n");
+    printf("3) Set timeout\n");
+    printf("*----------------------------------------------------------*\n");
+
+
+    while(operation!=4){
+
+
+        scanf("%s", op);
+
+        operation = atoi(op);
+
+        switch(operation){
+
+
+            case 1:
+
+                memset(dec, 0, 10);
+                printf("Decide what type of priority you want:\n");
+                printf("1) LOW_PRIORITY\n");
+                printf("2) HIGH_PRIORITY\n");
+                scanf("%s", dec);
+                decision = atoi(dec);
+
+                settings.priority = decision;
+
+                ret = ioctl(fd, decision, timeout);
+                if (ret == -1) goto exit;
+                
+                memset(dec, 0, 10);
+                printf("Do you want to continue changing settings? (y/n): ");
+                scanf("%s", dec);
+
+                if (strcmp(dec, "n"))
+                {
+                    break;
+                }
+
+            case 2:
+
+
+                memset(dec, 0, 10);
+                printf("Decide what type of blocking you want:\n");
+                printf("1) BLOCKING\n");
+                printf("2) NON_BLOCKING\n");
+                scanf("%s", dec);
+                decision = atoi(dec);
+
+                settings.blocking = decision;
+
+                decision += 2;
+
+
+                ret = ioctl(fd, decision, timeout);
+                if (ret == -1) goto exit;
+                
+                memset(dec, 0, 10);
+                printf("Do you want to continue changing settings? (y/n): ");
+                scanf("%s", dec);
+
+                if (strcmp(dec, "n"))
+                {
+                    break;
+                }
+
+            case 3:
+
+                break;
+
+            default:
+
+                printf("Illegal command: retry\n");
+
+
+        }
+    
+exit: 
+        printf("Error on ioctl() (%s)\n", strerror(errno));
+        close(fd);
+        exit(-1);
+
+
+    }
+
+
+
+
+
+
+
+
 }
 
 
