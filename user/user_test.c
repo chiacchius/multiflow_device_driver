@@ -50,8 +50,8 @@ int main(int argc, char *argv[]){
     char* path;
     int ret;
     int major, minor;
-    int op;
-    char *buff;
+    char op[10];
+    int operation;
     char write_buff[1000000];
 
     system("clear");
@@ -75,7 +75,7 @@ int main(int argc, char *argv[]){
 
     for (int i = 0; i < MINORS; i++)
     {
-        sprintf( buff, "mknod %s%d c %d %i 2> /dev/null\n", path, i, major, i);
+        sprintf(buff, "mknod %s%d c %d %i 2> /dev/null\n", path, i, major, i);
         system(buff);
 
     }
@@ -115,24 +115,29 @@ int main(int argc, char *argv[]){
 
 
 
-    while(1){
+    while(operation!=4){
 
 
         show_operations();
-        scanf("%d", &op);
-
-
-
-        switch(op){
+        memset(op, 0, 10);
+        fgets(op, sizeof(op), stdin);
+	operation = atoi(op);
+	
+	
+        switch(operation){
+        
 
             case 1: //write 
-
+            
+            
+	
             memset(write_buff, 0, MAX_BYTES);
-            printf("What do you want to write?\n");
-            scanf("%[^\n]s, write_buff);
+            printf("What do you want to write?: ");
+            fgets(write_buff, sizeof(write_buff), stdin);
             ret = write(fd, write_buff, strlen(write_buff));
             if (ret==-1) printf("Could not write on device: %s\n", strerror(errno));
-            else printf("Written %d bytes on device\n", strlen(write_buff));
+            else printf("Written %ld bytes on device: %s\n", strlen(write_buff), write_buff);
+            
             break;
 
 
@@ -142,7 +147,9 @@ int main(int argc, char *argv[]){
             case 3: //get_settings
 
 
-            case 4: break;
+            case 4: 
+            
+            break;
 
 
 
@@ -159,8 +166,6 @@ int main(int argc, char *argv[]){
     
 
     close(fd);
-    return NULL;
-
 
     return 0;
 }
