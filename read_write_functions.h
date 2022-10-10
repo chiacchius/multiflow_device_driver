@@ -163,7 +163,7 @@ int read(Object_state *object, Session *session, char* buff, size_t len, int pri
 
     if (lock==0){
         printk("%s: cannot acquire the lock\n", MODNAME);
-        return -1;
+        return READ_ERROR;
     }
 
     Object_content *current_node = flow->obj_head;
@@ -175,7 +175,7 @@ int read(Object_state *object, Session *session, char* buff, size_t len, int pri
         mutex_unlock(&(flow->operation_synchronizer));
         wake_up(&(flow->wait_queue));
         printk("%s: lock released\n", MODNAME);
-        return -1;
+        return READ_EMPTY;
     }
 
     int bytes_read = 0;
@@ -223,7 +223,6 @@ int read(Object_state *object, Session *session, char* buff, size_t len, int pri
         }
 
 
-
         //caso in cui il numero di bytes da leggere è maggiore del numero di bytes nel current_block
         else{
 
@@ -245,20 +244,25 @@ int read(Object_state *object, Session *session, char* buff, size_t len, int pri
 
             printk("%s: Read | Block fully read. Memory released.", MODNAME);
 
+            // non sono più presenti byte nel device
+            if (current_node->stream_content == NULL){
+
+                if(priority==HIGH_PRIORITY) hp_bytes[Minor] -= bytes_read;
+                else lp_bytes[Minor] -= bytes_read;
+                object->available_bytes += bytes_read;
+                printk("%s: Read | Block fully read. Memory released. There aren't other bytes in device to read\n", MODNAME);
+                //rilascio il lock e finisco l'iterazione
+                mutex_unlock(&(flow->operation_synchronizer));
+                wake_up(&(flow->wait_queue));
+                printk("%s: Read completed and lock released.\n", MODNAME);
+                break;
+            }
+
 
 
         }
 
-        // non sono più presenti byte nel device
-        if (current_node->stream_content == NULL){
 
-            if(priority==HIGH_PRIORITY) hp_bytes[Minor] -= bytes_read;
-            else lp_bytes[Minor] -= bytes_read;
-            object->available_bytes += bytes_read;
-            kfree(content_to_remove->stream_content);
-            kfree(content_to_remove);
-            printk("%s: Read | Block fully read. Memory released.", MODNAME);
-        }
 
     }
 

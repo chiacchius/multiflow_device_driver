@@ -44,7 +44,8 @@
 #define NOT_ENABLED 0
 #define ENABLED 1
 
-
+#define READ_ERROR -1
+#define READ_EMPTY -2
 
 
 static int enabled_device[MINORS];

@@ -136,7 +136,7 @@ int main(int argc, char *argv[]){
             printf("What do you want to write?: ");
             fgets(rw_buff, sizeof(rw_buff), stdin);
             ret = write(fd, rw_buff, min(MAX_BYTES, strlen(rw_buff)));
-            if (ret==-1) printf("Could not write on device: %s\n", strerror(errno));
+            if (ret==-1) printf("Could not write on device");
             else printf("Written %ld bytes on device: %s\n", min(MAX_BYTES, strlen(rw_buff)), rw_buff);
             
             break;
@@ -151,7 +151,7 @@ int main(int argc, char *argv[]){
             fgets(buff, sizeof(buff), stdin);
             bytes_num = atoi(buff);
             ret = read(fd, rw_buff, min(MAX_BYTES, bytes_num));
-            if (ret==-1) printf("Could not read from device: %s\n", strerror(errno));
+            if (ret==READ_ERROR) printf("Could not read from device\n");
             else printf("Read %ld bytes from device: %s\n", min(MAX_BYTES, strlen(rw_buff)), rw_buff);
 
 
