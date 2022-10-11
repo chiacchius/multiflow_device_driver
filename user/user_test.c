@@ -167,7 +167,7 @@ int main(int argc, char *argv[]){
 
             new_settings();
 
-
+            break;
 
             case 4: 
             
@@ -220,8 +220,9 @@ void new_settings(){
     while(operation!=4){
 
 
-        scanf("%s", op);
-
+        //scanf("%s", op);
+        memset(dec, 0, 10);
+	fgets(op, sizeof(op), stdin);
         operation = atoi(op);
 
         switch(operation){
@@ -229,53 +230,74 @@ void new_settings(){
 
             case 1:
 
-                memset(dec, 0, 10);
+                
                 printf("Decide what type of priority you want:\n");
                 printf("1) LOW_PRIORITY\n");
                 printf("2) HIGH_PRIORITY\n");
-                scanf("%s", dec);
+                //scanf("%s", dec);
+                fgets(dec, sizeof(dec), stdin);
+                dec[strcspn(dec, "\n")] = 0;
                 decision = atoi(dec);
-
+                memset(dec, 0, 10);
                 settings.priority = decision;
+                
+                printf("your decision: +%d+\n", decision);
 
                 ret = ioctl(fd, decision, timeout);
                 if (ret == -1) goto exit;
                 
-                memset(dec, 0, 10);
+                
                 printf("Do you want to continue changing settings? (y/n): ");
-                scanf("%s", dec);
+                //scanf("%s", dec);
+                fgets(dec, sizeof(dec), stdin);
+                dec[strcspn(dec, "\n")] = 0;
+                printf("%s+\n", dec);
 
-                if (strcmp(dec, "n"))
+                if (strcmp(dec, "n")==0)
                 {
-                    break;
+                    memset(dec, 0, 10);
+                    
+                    goto stop;
                 }
+                memset(dec, 0, 10);
 
             case 2:
 
 
-                memset(dec, 0, 10);
+                
                 printf("Decide what type of blocking you want:\n");
                 printf("1) BLOCKING\n");
                 printf("2) NON_BLOCKING\n");
-                scanf("%s", dec);
+                //scanf("%s", dec);
+                fgets(dec, sizeof(dec), stdin);
+                dec[strcspn(dec, "\n")] = 0;
                 decision = atoi(dec);
+                memset(dec, 0, 10);
 
                 settings.blocking = decision;
 
                 decision += 2;
+                
+                printf("your decision: %d\n", decision);
 
 
                 ret = ioctl(fd, decision, timeout);
                 if (ret == -1) goto exit;
                 
-                memset(dec, 0, 10);
+                
                 printf("Do you want to continue changing settings? (y/n): ");
-                scanf("%s", dec);
+                //scanf("%s", dec);
+                fgets(dec, sizeof(dec), stdin);
+                dec[strcspn(dec, "\n")] = 0;
+                
 
                 if (strcmp(dec, "n"))
                 {
-                    break;
+                    memset(dec, 0, 10);
+                    goto stop;
                 }
+                memset(dec, 0, 10);
+                
 
             case 3:
 
@@ -292,7 +314,8 @@ exit:
         printf("Error on ioctl() (%s)\n", strerror(errno));
         close(fd);
         exit(-1);
-
+stop:
+	return;
 
     }
 

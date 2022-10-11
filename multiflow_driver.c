@@ -52,7 +52,7 @@ static struct file_operations fops = {
 static long dev_ioctl(struct file *filp, unsigned int command, unsigned long param) {
 
     Session *session = filp->private_data;
-
+    printk("%s: User decided %d command\n", MODNAME, command);
     switch(command){
 
 
@@ -71,14 +71,14 @@ static long dev_ioctl(struct file *filp, unsigned int command, unsigned long par
 
         case BLOCKING_IOCTL:
 
-            session->priority = BLOCKING;
+            session->blocking = BLOCKING;
             printk("%s: User decided to set blocking to: BLOCKING\n", MODNAME);
             break;
 
 
         case NON_BLOCKING_IOCTL:
 
-            session->priority = NON_BLOCKING;
+            session->blocking = NON_BLOCKING;
             printk("%s: User decided to set blocking to: NON_BLOCKING\n", MODNAME);
             break;
 

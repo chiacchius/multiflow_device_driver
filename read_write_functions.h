@@ -163,7 +163,7 @@ int read(Object_state *object, Session *session, char* buff, size_t len, int pri
 
     if (lock==0){
         printk("%s: cannot acquire the lock\n", MODNAME);
-        return READ_ERROR;
+        return -1;
     }
 
     Object_content *current_node = flow->obj_head;
@@ -175,7 +175,7 @@ int read(Object_state *object, Session *session, char* buff, size_t len, int pri
         mutex_unlock(&(flow->operation_synchronizer));
         wake_up(&(flow->wait_queue));
         printk("%s: lock released\n", MODNAME);
-        return READ_EMPTY;
+        return -1;
     }
 
     int bytes_read = 0;
