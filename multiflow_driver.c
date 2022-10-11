@@ -112,6 +112,11 @@ static int dev_open(struct inode *inode, struct file *file) {
     if(Minor >= MINORS){
         return -ENODEV;
     }
+    
+    if (enabled_device[Minor] == DISABLED) {
+        printk("%s: device with minor %d is disabled, and cannot be opened.\n", MODNAME, Minor);
+        return -ENOMEM;
+    }
 
     session = kzalloc(sizeof(session), GFP_ATOMIC);
     printk("%s: ALLOCATED new session\n", MODNAME);
@@ -120,6 +125,7 @@ static int dev_open(struct inode *inode, struct file *file) {
         printk("%s: unable to allocate new session\n", MODNAME);
         return -ENOMEM;
     }
+    
     
 
     session->priority = HIGH_PRIORITY;

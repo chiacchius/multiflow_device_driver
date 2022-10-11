@@ -41,7 +41,7 @@
 #define BLOCKING 0
 #define NON_BLOCKING 1
 
-#define NOT_ENABLED 0
+#define DISABLED 0
 #define ENABLED 1
 
 

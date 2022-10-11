@@ -24,12 +24,19 @@
 #define BLOCKING 0
 #define NON_BLOCKING 1
 
-
+#define MAX_DEVICE_BYTES 1000000
 #define MAX_BYTES 1024
+
+#define ENABLED_PATH "/sys/module/multiflow_driver/parameters/enabled_device"
+#define HP_BYTES_PATH "/sys/module/multiflow_driver/parameters/hp_bytes"
+#define LP_BYTES_PATH "/sys/module/multiflow_driver/parameters/lp_bytes"
+#define HP_THREADS_PATH "/sys/module/multiflow_driver/parameters/hp_threads"
+#define LP_THREADS_PATH "/sys/module/multiflow_driver/parameters/lp_threads"
 
 void show_operations();
 void new_settings();
 void get_status();
+int find_value(char*);
 
 typedef struct settings{
 
@@ -41,15 +48,11 @@ typedef struct settings{
 
 
 
-
-
-
-
-
 char buff[MAX_BYTES];
 char rw_buff[MAX_BYTES];
 int bytes_num;
 int fd;
+int major, minor;
 
 
 
@@ -59,7 +62,7 @@ int main(int argc, char *argv[]){
 
     char* path;
     int ret;
-    int major, minor;
+    
     char op[10];
     int operation;
     
@@ -119,7 +122,7 @@ int main(int argc, char *argv[]){
   
 
 
-    while(operation!=4){
+    while(operation!=5){
 
 	
         show_operations();
@@ -171,14 +174,16 @@ int main(int argc, char *argv[]){
             
             case 4:
             
-            	get_status();
+            	//get_status(major, minor);
+            	find_value(HP_BYTES_PATH);
+            	break;
 
             case 5:
             
             	break; 
             
             
-            break;
+            
 
 
             default:
@@ -379,24 +384,63 @@ stop:
 
 void get_status(){
 
-	print("Actually in device driver we have:\n");
+	printf("Actually in device with Major = %d and Minor = %d we have:\n", major, minor);
+	
+	char *Device = " DEVICE " + '[' + (major + '0') + ']' + '[' + (minor + '0') + ']' ;
+	
+	printf("*-----------------------------------------------------------------*\n");
+	printf("* %s: Timeout = %d                                                *\n" , Device, settings.timeout);
+	printf("* %s: Available bytes = %d                                        *\n", Device,  MAX_DEVICE_BYTES- find_value(HP_BYTES_PATH) - find_value(LP_BYTES_PATH));
+	printf("* %s: Number of bytes in high priority flow = %d                  *\n" , Device, find_value(HP_BYTES_PATH));
+	printf("* %s: Number of bytes in low priority flow = %d                   *\n" , Device, find_value(LP_BYTES_PATH));
+	
+	printf("* %s: Number of waiting threads in high priority flow = %d        *\n" , Device, find_value(HP_THREADS_PATH));
+	printf("* %s: Number of waiting threads in low priority flow = %d         *\n" , Device, find_value(LP_THREADS_PATH));
+	
+	printf("*-----------------------------------------------------------------*\n");
+	
+	
+	
+	
+	
+	
+	
 	
 	
 
 }
 
 
+int find_value(char *path){
+	
+	int value;
+	
+	
+	FILE* file_stream = fopen(path, "r");
+	char string[2048];
+	fgets(string, 2048, file_stream);
+	value = (int)string[minor*2];
+	printf("\n%s\n", string);
+	memset(string, 0, 2048);
+	
+	
+	
+	
+
+	return value;
+}
+
 
 void show_operations(){
 	
 	printf("*----------------------------------------------------------*\n");
 	printf("*------------------------- OPERATIONS ---------------------*\n");
-    printf("*----------------------------------------------------------*\n");
+    	printf("*----------------------------------------------------------*\n");
 	printf("select the number corresponding to the operation you want to carry out\n");
-	printf("1) write on device\n2) read from device\n3) change settings\n5) get device status\n5) exit\n");
+	printf("1) write on device\n2) read from device\n3) change settings\n4) get device status\n5) exit\n");
 	printf("*----------------------------------------------------------*\n");
-    printf("*----------------------------------------------------------*\n");
-    printf("*----------------------------------------------------------*\n");
+    	printf("*----------------------------------------------------------*\n");
+    	printf("*----------------------------------------------------------*\n");
 
 
 }
