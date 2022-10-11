@@ -105,7 +105,6 @@ static long dev_ioctl(struct file *filp, unsigned int command, unsigned long par
 
 static int dev_open(struct inode *inode, struct file *file) {
 
-    int minor;
     Minor = get_minor(file);
 
     Session *session;
@@ -121,6 +120,7 @@ static int dev_open(struct inode *inode, struct file *file) {
         printk("%s: unable to allocate new session\n", MODNAME);
         return -ENOMEM;
     }
+    
 
     session->priority = HIGH_PRIORITY;
     session->blocking = NON_BLOCKING;
@@ -129,7 +129,7 @@ static int dev_open(struct inode *inode, struct file *file) {
 
 
 
-    printk("%s: device file successfully opened for object with minor %d\n",MODNAME,minor);
+    printk("%s: device file successfully opened for object with minor %d\n", MODNAME, Minor);
     return 0;
 
 }

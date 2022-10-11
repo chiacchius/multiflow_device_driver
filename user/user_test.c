@@ -29,7 +29,7 @@
 
 void show_operations();
 void new_settings();
-
+void get_status();
 
 typedef struct settings{
 
@@ -121,7 +121,7 @@ int main(int argc, char *argv[]){
 
     while(operation!=4){
 
-
+	
         show_operations();
         memset(op, 0, 10);
         fgets(op, sizeof(op), stdin);
@@ -132,17 +132,17 @@ int main(int argc, char *argv[]){
         
 
             case 1: //write 
-            
-
-            
-	        
+           
 
             memset(rw_buff, 0, MAX_BYTES);
             printf("What do you want to write?: ");
             fgets(rw_buff, sizeof(rw_buff), stdin);
+            rw_buff[strcspn(rw_buff, "\n")] = ' ';
             ret = write(fd, rw_buff, min(MAX_BYTES, strlen(rw_buff)));
             if (ret==-1) printf("Could not write on device");
             else printf("Written %ld bytes on device: %s\n", min(MAX_BYTES, strlen(rw_buff)), rw_buff);
+            
+            
             
             break;
 
@@ -163,13 +163,20 @@ int main(int argc, char *argv[]){
             break;
 
 
-            case 3: 
+            case 3: //new settings
 
             new_settings();
 
             break;
+            
+            case 4:
+            
+            	get_status();
 
-            case 4: 
+            case 5:
+            
+            	break; 
+            
             
             break;
 
@@ -185,7 +192,7 @@ int main(int argc, char *argv[]){
 
       
 
-
+	
 
 
 
@@ -217,7 +224,7 @@ void new_settings(){
     printf("*----------------------------------------------------------*\n");
 
 
-    while(operation!=4){
+    while(operation!=5){
 
 
         //scanf("%s", op);
@@ -238,10 +245,13 @@ void new_settings(){
                 fgets(dec, sizeof(dec), stdin);
                 dec[strcspn(dec, "\n")] = 0;
                 decision = atoi(dec);
+                decision +=2;
                 memset(dec, 0, 10);
                 settings.priority = decision;
                 
                 printf("your decision: +%d+\n", decision);
+                
+               
 
                 ret = ioctl(fd, decision, timeout);
                 if (ret == -1) goto exit;
@@ -276,7 +286,7 @@ void new_settings(){
 
                 settings.blocking = decision;
 
-                decision += 2;
+                decision += 4;
                 
                 printf("your decision: %d\n", decision);
 
@@ -290,9 +300,12 @@ void new_settings(){
                 fgets(dec, sizeof(dec), stdin);
                 dec[strcspn(dec, "\n")] = 0;
                 
+                
+                
 
-                if (strcmp(dec, "n"))
+                if (strcmp(dec, "n")==0)
                 {
+
                     memset(dec, 0, 10);
                     goto stop;
                 }
@@ -300,8 +313,42 @@ void new_settings(){
                 
 
             case 3:
+            
+            	printf("Decide how long you can wait for operation completion: ");
+            	fgets(dec, sizeof(dec), stdin);
+          
+                dec[strcspn(dec, "\n")] = 0;
+                decision = atoi(dec);
+                memset(dec, 0, 10);
+                
+            	settings.timeout = decision;
+            	
+            	decision = 7;
+            	
+            	ret = ioctl(fd, decision, settings.timeout);
+                if (ret == -1) goto exit;
+                
+                
+                printf("Do you want to continue changing settings? (y/n): ");
+                //scanf("%s", dec);
+                fgets(dec, sizeof(dec), stdin);
+                dec[strcspn(dec, "\n")] = 0;
+                
+                
+                
+
+                if (strcmp(dec, "n")==0)
+                {
+
+                    memset(dec, 0, 10);
+                    goto stop;
+                }
+                memset(dec, 0, 10);
 
                 break;
+                
+                
+            
 
             default:
 
@@ -329,13 +376,24 @@ stop:
 }
 
 
+
+void get_status(){
+
+	print("Actually in device driver we have:\n");
+	
+	
+
+}
+
+
+
 void show_operations(){
 	
 	printf("*----------------------------------------------------------*\n");
 	printf("*------------------------- OPERATIONS ---------------------*\n");
     printf("*----------------------------------------------------------*\n");
 	printf("select the number corresponding to the operation you want to carry out\n");
-	printf("1) write on device\n2) read from device\n3) change settings\n4) exit\n");
+	printf("1) write on device\n2) read from device\n3) change settings\n5) get device status\n5) exit\n");
 	printf("*----------------------------------------------------------*\n");
     printf("*----------------------------------------------------------*\n");
     printf("*----------------------------------------------------------*\n");

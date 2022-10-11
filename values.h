@@ -45,11 +45,11 @@
 #define ENABLED 1
 
 
-#define LOW_PRIORITY_IOCTL 1
-#define HIGH_PRIORITY_IOCTL 2
-#define BLOCKING_IOCTL 3
-#define NON_BLOCKING_IOCTL 4
-#define TIMEOUT_IOCTL 5
+#define LOW_PRIORITY_IOCTL 3
+#define HIGH_PRIORITY_IOCTL 4
+#define BLOCKING_IOCTL 5
+#define NON_BLOCKING_IOCTL 6
+#define TIMEOUT_IOCTL 7
 
 
 static int enabled_device[MINORS];
