@@ -189,7 +189,7 @@ int read(Object_state *object, Session *session, char* buff, size_t len, int pri
 
         //caso in cui il numero di bytes da leggere è minore del numero di bytes nel current_block
         if (bytes_to_read <= content_len - current_node->last_offset_read){
-            printk("%s: can read only from one node\n", MODNAME);
+            printk("%s: can read only from one node: %d total bytes to read\n", MODNAME, bytes_to_read);
 
             ret = copy_to_user(&buff[bytes_read], &current_node->stream_content[current_node->last_offset_read], bytes_to_read);
             current_node->last_offset_read += (bytes_to_read-ret);
@@ -201,7 +201,7 @@ int read(Object_state *object, Session *session, char* buff, size_t len, int pri
 
             object->available_bytes += bytes_read;
 
-            if (current_node->last_offset_read == content_len - 1){
+            if (current_node->last_offset_read > content_len - 1){
                 //elimino il blocco se tutti i bytes presenti sono stati consumati
                 content_to_remove = current_node;
                 current_node = current_node->next;
@@ -226,7 +226,7 @@ int read(Object_state *object, Session *session, char* buff, size_t len, int pri
         //caso in cui il numero di bytes da leggere è maggiore del numero di bytes nel current_block
         else{
 
-            printk("%s: should be read from more than one node\n", MODNAME);
+            printk("%s: should be read from more than one node: %d total bytes to read\n", MODNAME, bytes_to_read);
 
             int residual_bytes = content_len - current_node->last_offset_read;
 
