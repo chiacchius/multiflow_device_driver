@@ -140,7 +140,7 @@ int main(int argc, char *argv[]){
             memset(rw_buff, 0, MAX_BYTES);
             printf("What do you want to write?: ");
             fgets(rw_buff, sizeof(rw_buff), stdin);
-            rw_buff[strcspn(rw_buff, "\n")] = ' ';
+            rw_buff[strcspn(rw_buff, "\n")] = 0;
             ret = write(fd, rw_buff, min(MAX_BYTES, strlen(rw_buff)));
             if (ret==-1) printf("Could not write on device");
             else printf("Written %ld bytes on device: %s\n", min(MAX_BYTES, strlen(rw_buff)), rw_buff);
@@ -160,7 +160,7 @@ int main(int argc, char *argv[]){
             bytes_num = atoi(buff);
             ret = read(fd, rw_buff, min(MAX_BYTES, bytes_num));
             if (ret==-1) printf("Could not read from device\n");
-            else printf("Read %ld bytes from device: %s\n", min(MAX_BYTES, strlen(rw_buff)), rw_buff);
+            else printf("Read %ld bytes from device: \n%s\n", min(MAX_BYTES, strlen(rw_buff)), rw_buff);
 
 
             break;
@@ -174,8 +174,8 @@ int main(int argc, char *argv[]){
             
             case 4:
             
-            	//get_status(major, minor);
-            	find_value(HP_BYTES_PATH);
+            	get_status(major, minor);
+            	//find_value(HP_BYTES_PATH);
             	break;
 
             case 5:
@@ -218,7 +218,7 @@ void new_settings(){
     char dec[10];
     int decision;
     int ret;
-    int timeout;
+    int timeout=settings.timeout;
 
     system("clear");
     printf("*----------------------------------------------------------*\n");
@@ -231,10 +231,9 @@ void new_settings(){
 
     while(operation!=5){
 
-
         //scanf("%s", op);
         memset(dec, 0, 10);
-	fgets(op, sizeof(op), stdin);
+	    fgets(op, sizeof(op), stdin);
         operation = atoi(op);
 
         switch(operation){
@@ -386,7 +385,7 @@ void get_status(){
 
 	printf("Actually in device with Major = %d and Minor = %d we have:\n", major, minor);
 	
-	char *Device = " DEVICE " + '[' + (major + '0') + ']' + '[' + (minor + '0') + ']' ;
+	char Device[10] = " DEVICE "; //+ '[' + (major + '0') + ']' + '[' + (minor + '0') + ']' ;
 	
 	printf("*-----------------------------------------------------------------*\n");
 	printf("* %s: Timeout = %d                                                *\n" , Device, settings.timeout);
@@ -413,16 +412,29 @@ void get_status(){
 
 int find_value(char *path){
 	
-	int value;
+	int value,it;
 	
 	
 	FILE* file_stream = fopen(path, "r");
 	char string[2048];
 	fgets(string, 2048, file_stream);
-	value = (int)string[minor*2];
-	printf("\n%s\n", string);
-	memset(string, 0, 2048);
 	
+    char * token = strtok(string, ",");
+
+    if (minor==0){
+        return atoi(token);
+    }
+
+    it=0;
+    while( it!=minor ) {
+        token = strtok(NULL, ",");
+        //printf( "%s\n", token ); //printing each token
+        it++;
+
+    }
+
+    value = atoi(token);
+    //printf("%d\n", value);
 	
 	
 	
@@ -439,8 +451,8 @@ void show_operations(){
 	printf("select the number corresponding to the operation you want to carry out\n");
 	printf("1) write on device\n2) read from device\n3) change settings\n4) get device status\n5) exit\n");
 	printf("*----------------------------------------------------------*\n");
-    	printf("*----------------------------------------------------------*\n");
-    	printf("*----------------------------------------------------------*\n");
+    printf("*----------------------------------------------------------*\n");
+    printf("*----------------------------------------------------------*\n");
 
 
 }

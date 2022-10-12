@@ -73,7 +73,7 @@ size_t write_work_schedule(Object_state *object, Session *session, const char *b
     int ret;
     int lock;
     packed_work_struct *packed_work;
-
+    
     lock = try_lock(object, session, minor);
 
     if (lock==0){
@@ -104,7 +104,7 @@ size_t write_work_schedule(Object_state *object, Session *session, const char *b
     }
 
     ret = copy_from_user((char *)packed_work->data, buff, len);
-
+    packed_work->minor = minor;
     object->available_bytes += (len - ret);
     lp_bytes[minor]+= (len - ret);
 
@@ -122,7 +122,7 @@ void delayed_write(struct work_struct *delayed_work){
     packed_work_struct *packed_work = container_of(delayed_work, packed_work_struct, work);
     int minor = packed_work->minor;
     Object_state *object = &objects[minor];
-
+ printk("%s: minor: %d\n", MODNAME, minor);
     Flow *flow = &object->flows[LOW_PRIORITY];
 
     lock(object, minor);
@@ -139,8 +139,8 @@ void delayed_write(struct work_struct *delayed_work){
     new_block->stream_content = NULL;
     new_block->last_offset_read = 0;
     current_node->next = new_block;
-
-    printk("%s: Written '%s' in block %d: \n", MODNAME,current_node->stream_content, (int)strlen(current_node->stream_content)) ;
+    flow->obj_head = current_node;
+    printk("%s: Written '%s' in block\n", MODNAME, current_node->stream_content) ;
 
     kfree(packed_work);
     mutex_unlock(&(flow->operation_synchronizer));
@@ -158,7 +158,7 @@ int read(Object_state *object, Session *session, char* buff, size_t len, int pri
     //si effettua un trylock lock
     int lock = try_lock(object, session, Minor);
     Flow *flow = &object->flows[priority];
-
+    printk("%s: priority: %d\n", MODNAME, priority);
     int cl_usr= clear_user(buff, len);
 
     if (lock==0){
@@ -171,7 +171,7 @@ int read(Object_state *object, Session *session, char* buff, size_t len, int pri
 
     // Non sono presenti dati nello stream, quindi viene rilasciato il lock e si ritorna al chiamante.
     if (current_node->stream_content == NULL) {
-        printk("%s: no data in device\n", MODNAME);
+        printk("%s: no data in device, %d\n", MODNAME, priority);
         mutex_unlock(&(flow->operation_synchronizer));
         wake_up(&(flow->wait_queue));
         printk("%s: lock released\n", MODNAME);
