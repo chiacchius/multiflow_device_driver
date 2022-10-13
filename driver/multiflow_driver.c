@@ -9,7 +9,7 @@
 #include "structs.h"
 #include "values.h"
 #include "read_write_functions.h"
-#include "src/lock_functions.h"
+#include "lock_functions.h"
 
 
 MODULE_LICENSE("GPL");

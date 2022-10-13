@@ -36,7 +36,8 @@
 void show_operations();
 void new_settings();
 void get_status();
-int find_value(char*);
+int find_value(char* path, int minor);
+void change_enabling();
 
 typedef struct settings{
 
@@ -52,15 +53,15 @@ char buff[MAX_BYTES];
 char rw_buff[MAX_BYTES];
 int bytes_num;
 int fd;
-int major, minor;
-
+int Major, Minor;
+char* path;
 
 
 Settings settings;
 
 int main(int argc, char *argv[]){
 
-    char* path;
+    
     int ret;
     
     char op[10];
@@ -83,20 +84,20 @@ int main(int argc, char *argv[]){
     }
 
     path = argv[1];
-    major = strtol(argv[2], NULL, 10);
-    minor = strtol(argv[3], NULL, 10);
+    Major = strtol(argv[2], NULL, 10);
+    Minor = strtol(argv[3], NULL, 10);
 
     for (int i = 0; i < MINORS; i++)
     {
-        sprintf(buff, "mknod %s%d c %d %i 2> /dev/null\n", path, i, major, i);
+        sprintf(buff, "mknod %s%d c %d %i 2> /dev/null\n", path, i, Major, i);
         system(buff);
 
     }
 
     //salvo in buff il nome del driver dedicato allo user
-    sprintf(buff, "%s%d", path, minor);
+    sprintf(buff, "%s%d", path, Minor);
 
-    printf("(NOTICE: 128 devices were created. Your is %d in [0;127])\n", minor);
+    printf("(NOTICE: 128 devices were created. Your is %d in [0;127])\n", Minor);
 
 
     char *device = (char *)strdup(buff);
@@ -122,7 +123,7 @@ int main(int argc, char *argv[]){
   
 
 
-    while(operation!=5){
+    while(operation!=6){
 
 	
         show_operations();
@@ -174,11 +175,17 @@ int main(int argc, char *argv[]){
             
             case 4:
             
-            	get_status(major, minor);
-            	//find_value(HP_BYTES_PATH);
+            	get_status(Major, Minor);
+            	
             	break;
 
             case 5:
+            
+                change_enabling();
+                
+                break;
+
+            case 6:
             
             	break; 
             
@@ -229,7 +236,7 @@ void new_settings(){
     printf("*----------------------------------------------------------*\n");
 
 
-    while(operation!=5){
+    while(1){
 
         //scanf("%s", op);
         memset(dec, 0, 10);
@@ -383,19 +390,19 @@ stop:
 
 void get_status(){
 
-	printf("Actually in driver with Major = %d and Minor = %d we have:\n", major, minor);
+	printf("Actually in driver with Major = %d and Minor = %d we have:\n", Major, Minor);
 	
 	char Device[30];
-    sprintf(Device, "Device[%d][%d]", major, minor);
+    sprintf(Device, "Device[%d][%d]", Major, Minor);
 	
 	printf("*-----------------------------------------------------------------*\n");
 	printf("* %s: Timeout = %d                                                \n" , Device, settings.timeout);
-	printf("* %s: Available bytes = %d                                        \n", Device,  MAX_DEVICE_BYTES- find_value(HP_BYTES_PATH) - find_value(LP_BYTES_PATH));
-	printf("* %s: Number of bytes in high priority flow = %d                  \n" , Device, find_value(HP_BYTES_PATH));
-	printf("* %s: Number of bytes in low priority flow = %d                   \n" , Device, find_value(LP_BYTES_PATH));
+	printf("* %s: Available bytes = %d                                        \n", Device,  MAX_DEVICE_BYTES- find_value(HP_BYTES_PATH, Minor) - find_value(LP_BYTES_PATH, Minor));
+	printf("* %s: Number of bytes in high priority flow = %d                  \n" , Device, find_value(HP_BYTES_PATH, Minor));
+	printf("* %s: Number of bytes in low priority flow = %d                   \n" , Device, find_value(LP_BYTES_PATH, Minor));
 	
-	printf("* %s: Number of waiting threads in high priority flow = %d        \n" , Device, find_value(HP_THREADS_PATH));
-	printf("* %s: Number of waiting threads in low priority flow = %d         \n" , Device, find_value(LP_THREADS_PATH));
+	printf("* %s: Number of waiting threads in high priority flow = %d        \n" , Device, find_value(HP_THREADS_PATH, Minor));
+	printf("* %s: Number of waiting threads in low priority flow = %d         \n" , Device, find_value(LP_THREADS_PATH, Minor));
 	
 	printf("*-----------------------------------------------------------------*\n");
 	
@@ -411,7 +418,7 @@ void get_status(){
 }
 
 
-int find_value(char *path){
+int find_value(char *path, int minor){
 	
 	int value,it;
 	
@@ -437,20 +444,95 @@ int find_value(char *path){
     value = atoi(token);
     //printf("%d\n", value);
 	
-	
+	fclose(file_stream);
 	
 
 	return value;
 }
 
+void change_enabling(){
+    
+    char dec[10];
+    char command[64];
+    printf("Decide the minor number you want to change enabling: ");
+    int minor, enable;
+    //scanf("%d", &minor);
+    fgets(dec, sizeof(dec), stdin);
+          
+    dec[strcspn(dec, "\n")] = 0;
+    minor = atoi(dec);
+    memset(dec, 0, 10);
+    printf("%d\n", minor); 
+    enable = find_value(ENABLED_PATH, minor);
+    printf("%d\n", enable); 
+    
+    if (enable == 0){
+        printf("Actually the device file is DISABLED, do you want to change the enabling? (y/n): ");
+
+    }
+
+    else{
+        printf("Actually the device file is ENABLED, do you want to change the enabling? (y/n): ");
+    }
+
+
+    fgets(dec, sizeof(dec), stdin);
+    dec[strcspn(dec, "\n")] = 0;
+                
+                
+                
+
+    if (strcmp(dec, "n")==0){
+
+         memset(dec, 0, 10);
+         return;
+                    
+    }
+    memset(dec, 0, 10);
+    char new_enable_status;
+    
+    if (enable == 0){
+        
+        //sprintf(command, "echo 1 > %s", path);
+        //system(command);
+        new_enable_status = '1';
+
+    }
+    else {
+        //sprintf(command, "echo 0 > %s", path);
+        //system(command);
+        new_enable_status = '0';
+    }
+
+    FILE* file_stream = fopen(ENABLED_PATH, "w+");
+	char *string=NULL;
+    size_t string_len = 0;
+	getline(&string, &string_len, file_stream);
+   
+
+    string[2*minor] = new_enable_status;
+
+    fputs(string, file_stream);
+    fclose(file_stream);
+    
+
+
+    memset(command, 0, 64);
+         
+
+    
+
+
+
+}
 
 void show_operations(){
 	
 	printf("*----------------------------------------------------------*\n");
 	printf("*------------------------- OPERATIONS ---------------------*\n");
-    	printf("*----------------------------------------------------------*\n");
+    printf("*----------------------------------------------------------*\n");
 	printf("select the number corresponding to the operation you want to carry out\n");
-	printf("1) write on driver\n2) read from driver\n3) change settings\n4) get driver status\n5) exit\n");
+	printf("1) write on driver\n2) read from driver\n3) change settings\n4) get driver status\n5) change enabling\n6) exit\n");
 	printf("*----------------------------------------------------------*\n");
     printf("*----------------------------------------------------------*\n");
     printf("*----------------------------------------------------------*\n");

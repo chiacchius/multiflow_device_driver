@@ -7,7 +7,7 @@
 
 #include "values.h"
 #include "structs.h"
-#include "src/lock_functions.h"
+#include "lock_functions.h"
 
 size_t hp_write(Object_state *, Session *, const char *, size_t, int);
 size_t write_work_schedule(Object_state *object, Session *session, const char *buff, size_t len, int minor);
