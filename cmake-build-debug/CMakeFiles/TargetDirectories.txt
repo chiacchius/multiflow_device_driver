@@ -1,3 +1,0 @@
-/home/chacchius/Desktop/SOAproject/cmake-build-debug/CMakeFiles/SOAproject.dir
-/home/chacchius/Desktop/SOAproject/cmake-build-debug/CMakeFiles/edit_cache.dir
-/home/chacchius/Desktop/SOAproject/cmake-build-debug/CMakeFiles/rebuild_cache.dir

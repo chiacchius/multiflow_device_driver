@@ -3,4 +3,4 @@ project(SOAproject C)
 
 set(CMAKE_C_STANDARD 99)
 
-add_executable(SOAproject multiflow_driver.c structs.h values.h cmake-build-debug/user/user.c read_write_functions.h lock_functions.h user/user_test.c)
+add_executable(SOAproject driver/multiflow_driver.c driver/structs.h driver/values.h cmake-build-debug/user/user.c driver/read_write_functions.h driver/lock_functions.h user/user_test.c)

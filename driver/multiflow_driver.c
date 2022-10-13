@@ -1,4 +1,4 @@
-/* Multiflow device driver
+/* Multiflow driver driver
  * Author: Matteo Chiacchia
  * SOA project
  * */
@@ -9,12 +9,12 @@
 #include "structs.h"
 #include "values.h"
 #include "read_write_functions.h"
-#include "lock_functions.h"
+#include "src/lock_functions.h"
 
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Matteo Chiacchia");
-MODULE_DESCRIPTION("Multi-flow device file");
+MODULE_DESCRIPTION("Multi-flow driver file");
 
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 0, 0)
@@ -114,7 +114,7 @@ static int dev_open(struct inode *inode, struct file *file) {
     }
     
     if (enabled_device[Minor] == DISABLED) {
-        printk("%s: device with minor %d is disabled, and cannot be opened.\n", MODNAME, Minor);
+        printk("%s: driver with minor %d is disabled, and cannot be opened.\n", MODNAME, Minor);
         return -ENOMEM;
     }
 
@@ -135,7 +135,7 @@ static int dev_open(struct inode *inode, struct file *file) {
 
 
 
-    printk("%s: device file successfully opened for object with minor %d\n", MODNAME, Minor);
+    printk("%s: driver file successfully opened for object with minor %d\n", MODNAME, Minor);
     return 0;
 
 }
@@ -147,7 +147,7 @@ static int dev_release(struct inode *inode, struct file *file){
     Session *session = file->private_data;
     kfree(session);
 
-    printk("%s: device file closed\n", MODNAME);
+    printk("%s: driver file closed\n", MODNAME);
 
     return 0;
 }
@@ -166,7 +166,7 @@ static ssize_t dev_write(struct file *filp, const char *buff, size_t len, loff_t
 
 
     if (len > object->available_bytes){
-        printk("%s: non enough available bytes in device driver\n", MODNAME);
+        printk("%s: non enough available bytes in driver driver\n", MODNAME);
         return -ENOMEM;
     }
 
@@ -305,11 +305,11 @@ int init_module(void){
     //actually allowed minors are directly controlled within this driver
 
     if (Major < 0) {
-        printk("%s: registering device failed\n",MODNAME);
+        printk("%s: registering driver failed\n",MODNAME);
         return Major;
     }
 
-    printk("%s: new device registered, it is assigned major number %d\n",MODNAME, Major);
+    printk("%s: new driver registered, it is assigned major number %d\n",MODNAME, Major);
 
     return 0;
 
@@ -342,7 +342,7 @@ void cleanup_module(void)
 
     unregister_chrdev(Major, DEVICE_NAME);
 
-    printk("%s: new device unregistered, it was assigned major number %d\n", MODNAME, Major);
+    printk("%s: new driver unregistered, it was assigned major number %d\n", MODNAME, Major);
 
 }
 

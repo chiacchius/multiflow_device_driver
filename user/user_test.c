@@ -1,5 +1,5 @@
 /**
-    Programma per il testing utente del multiflow device driver
+    Programma per il testing utente del multiflow driver driver
 */
 
 
@@ -93,7 +93,7 @@ int main(int argc, char *argv[]){
 
     }
 
-    //salvo in buff il nome del device dedicato allo user
+    //salvo in buff il nome del driver dedicato allo user
     sprintf(buff, "%s%d", path, minor);
 
     printf("(NOTICE: 128 devices were created. Your is %d in [0;127])\n", minor);
@@ -105,7 +105,7 @@ int main(int argc, char *argv[]){
 
     if (fd == -1)
     {
-        printf("open error on device %s, %s\n", device, strerror(errno));
+        printf("open error on driver %s, %s\n", device, strerror(errno));
         return -1;
     }
 
@@ -142,8 +142,8 @@ int main(int argc, char *argv[]){
             fgets(rw_buff, sizeof(rw_buff), stdin);
             rw_buff[strcspn(rw_buff, "\n")] = 0;
             ret = write(fd, rw_buff, min(MAX_BYTES, strlen(rw_buff)));
-            if (ret==-1) printf("Could not write on device");
-            else printf("Written %ld bytes on device: %s\n", min(MAX_BYTES, strlen(rw_buff)), rw_buff);
+            if (ret==-1) printf("Could not write on driver");
+            else printf("Written %ld bytes on driver: %s\n", min(MAX_BYTES, strlen(rw_buff)), rw_buff);
             
             
             
@@ -159,8 +159,8 @@ int main(int argc, char *argv[]){
             fgets(buff, sizeof(buff), stdin);
             bytes_num = atoi(buff);
             ret = read(fd, rw_buff, min(MAX_BYTES, bytes_num));
-            if (ret==-1) printf("Could not read from device\n");
-            else printf("Read %ld bytes from device: \n%s\n", min(MAX_BYTES, strlen(rw_buff)), rw_buff);
+            if (ret==-1) printf("Could not read from driver\n");
+            else printf("Read %ld bytes from driver: \n%s\n", min(MAX_BYTES, strlen(rw_buff)), rw_buff);
 
 
             break;
@@ -383,18 +383,19 @@ stop:
 
 void get_status(){
 
-	printf("Actually in device with Major = %d and Minor = %d we have:\n", major, minor);
+	printf("Actually in driver with Major = %d and Minor = %d we have:\n", major, minor);
 	
-	char Device[10] = " DEVICE "; //+ '[' + (major + '0') + ']' + '[' + (minor + '0') + ']' ;
+	char Device[30];
+    sprintf(Device, "Device[%d][%d]", major, minor);
 	
 	printf("*-----------------------------------------------------------------*\n");
-	printf("* %s: Timeout = %d                                                *\n" , Device, settings.timeout);
-	printf("* %s: Available bytes = %d                                        *\n", Device,  MAX_DEVICE_BYTES- find_value(HP_BYTES_PATH) - find_value(LP_BYTES_PATH));
-	printf("* %s: Number of bytes in high priority flow = %d                  *\n" , Device, find_value(HP_BYTES_PATH));
-	printf("* %s: Number of bytes in low priority flow = %d                   *\n" , Device, find_value(LP_BYTES_PATH));
+	printf("* %s: Timeout = %d                                                \n" , Device, settings.timeout);
+	printf("* %s: Available bytes = %d                                        \n", Device,  MAX_DEVICE_BYTES- find_value(HP_BYTES_PATH) - find_value(LP_BYTES_PATH));
+	printf("* %s: Number of bytes in high priority flow = %d                  \n" , Device, find_value(HP_BYTES_PATH));
+	printf("* %s: Number of bytes in low priority flow = %d                   \n" , Device, find_value(LP_BYTES_PATH));
 	
-	printf("* %s: Number of waiting threads in high priority flow = %d        *\n" , Device, find_value(HP_THREADS_PATH));
-	printf("* %s: Number of waiting threads in low priority flow = %d         *\n" , Device, find_value(LP_THREADS_PATH));
+	printf("* %s: Number of waiting threads in high priority flow = %d        \n" , Device, find_value(HP_THREADS_PATH));
+	printf("* %s: Number of waiting threads in low priority flow = %d         \n" , Device, find_value(LP_THREADS_PATH));
 	
 	printf("*-----------------------------------------------------------------*\n");
 	
@@ -449,7 +450,7 @@ void show_operations(){
 	printf("*------------------------- OPERATIONS ---------------------*\n");
     	printf("*----------------------------------------------------------*\n");
 	printf("select the number corresponding to the operation you want to carry out\n");
-	printf("1) write on device\n2) read from device\n3) change settings\n4) get device status\n5) exit\n");
+	printf("1) write on driver\n2) read from driver\n3) change settings\n4) get driver status\n5) exit\n");
 	printf("*----------------------------------------------------------*\n");
     printf("*----------------------------------------------------------*\n");
     printf("*----------------------------------------------------------*\n");

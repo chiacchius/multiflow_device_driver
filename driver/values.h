@@ -31,7 +31,7 @@
 #define MODNAME "MFLOW-DEV"
 #define DEVICE_NAME "multiflow_device"
 
-#define MINORS 128  // Il numero di minors che il device può gestire è 128
+#define MINORS 128  // Il numero di minors che il driver può gestire è 128
 #define FLOWS 2
 
 
@@ -55,7 +55,7 @@
 static int enabled_device[MINORS];
 module_param_array(enabled_device, int, NULL, 0660);
 MODULE_PARM_DESC(enabled_device, "Module parameter is implemented in order to enable or disable " \
-"the device file, in terms of a specific minor number. If it is disabled, " \
+"the driver file, in terms of a specific minor number. If it is disabled, " \
 "any attempt to open a session should fail (but already open sessions will be still managed).");
 
 static int hp_bytes[MINORS];

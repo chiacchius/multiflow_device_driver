@@ -33,12 +33,12 @@ typedef struct _flow{
 
 
 /**
- *  Struttura per la gestione del device
+ *  Struttura per la gestione del driver
  */
 typedef struct _object_state{
 
-    long available_bytes;                  //numero di bytes che il device può ancora gestire
-    Flow flows[FLOWS];                    //flussi (bassa e alta priority) gestiti dal device
+    long available_bytes;                  //numero di bytes che il driver può ancora gestire
+    Flow flows[FLOWS];                    //flussi (bassa e alta priority) gestiti dal driver
 
 }Object_state;
 
@@ -61,8 +61,8 @@ typedef struct _packed_work_struct {
     const char *data;                   // Puntatore al buffer kernel temporaneo dove sono salvati i dati da scrivere poi sullo stream.
     size_t len;                         // Quantità di dati da scrivere, corrisponde alla lunghezza del buffer 'data'.
     Object_content *new_content;        // Puntatore al blocco vuoto per la scrittura successiva.
-    int minor;                          // Minor number del device su cui si sta operando.
-    Session *session;                   // Puntatore alla session_state verso il device su cui effettuare la scrittura.
+    int minor;                          // Minor number del driver su cui si sta operando.
+    Session *session;                   // Puntatore alla session_state verso il driver su cui effettuare la scrittura.
     struct work_struct work;            // Struttura di deferred work
 } packed_work_struct;
 

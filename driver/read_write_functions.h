@@ -7,7 +7,7 @@
 
 #include "values.h"
 #include "structs.h"
-#include "lock_functions.h"
+#include "src/lock_functions.h"
 
 size_t hp_write(Object_state *, Session *, const char *, size_t, int);
 size_t write_work_schedule(Object_state *object, Session *session, const char *buff, size_t len, int minor);
@@ -171,7 +171,7 @@ int read(Object_state *object, Session *session, char* buff, size_t len, int pri
 
     // Non sono presenti dati nello stream, quindi viene rilasciato il lock e si ritorna al chiamante.
     if (current_node->stream_content == NULL) {
-        printk("%s: no data in device, %d\n", MODNAME, priority);
+        printk("%s: no data in driver, %d\n", MODNAME, priority);
         mutex_unlock(&(flow->operation_synchronizer));
         wake_up(&(flow->wait_queue));
         printk("%s: lock released\n", MODNAME);
@@ -244,13 +244,13 @@ int read(Object_state *object, Session *session, char* buff, size_t len, int pri
 
             printk("%s: Read | Block fully read. Memory released.", MODNAME);
 
-            // non sono più presenti byte nel device
+            // non sono più presenti byte nel driver
             if (current_node->stream_content == NULL){
 
                 if(priority==HIGH_PRIORITY) hp_bytes[Minor] -= bytes_read;
                 else lp_bytes[Minor] -= bytes_read;
                 object->available_bytes += bytes_read;
-                printk("%s: Read | Block fully read. Memory released. There aren't other bytes in device to read\n", MODNAME);
+                printk("%s: Read | Block fully read. Memory released. There aren't other bytes in driver to read\n", MODNAME);
                 //rilascio il lock e finisco l'iterazione
                 mutex_unlock(&(flow->operation_synchronizer));
                 wake_up(&(flow->wait_queue));
