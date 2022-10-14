@@ -1,8 +1,8 @@
 # MULTIFLOW DEVICE DRIVER
-## Autore: Matteo Chiacchia (0300177)
+### Autore: Matteo Chiacchia (0300177)
 
 
-### SPECIFICA
+## SPECIFICA
 Il progetto permette la creazione e l'installazione di un Linux Device Driver che permette di eseguire operazioni di lettura e scrittura.
 Questo implementa flussi di dati ad alta e bassa priorità in cui è possibile specificare il tipo di operazioni da effettura
 I dati vengono letti seguendo un ordine FIFO e una volta consumati vengono eliminati dal flusso. 
@@ -17,7 +17,7 @@ Riassumendo l'utente, una volta aperta una sessione con un device file specifica
 * Abilitare o disabilitare un device file in termini di un minor number specifico
 * Chiudere la sessione
 
-### RUNNING
+## RUNNING
 
 #### Driver
 ```bash
@@ -51,10 +51,10 @@ make
 sudo ./user [Device_Path] Major_number Minor_number
 ```
 
-* Come **Device Path** inserire preferibilmente */dev/multiflow_device*
+* Come **Device_Path** inserire preferibilmente */dev/multiflow_device*
 * Come **Major_number** eseguire il comando
 ```bash
-sudo dmsesg
+sudo dmesg
 ```
 * Come **Minor_number** inserire un numero compreso tra 0 e 127
 
