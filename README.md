@@ -38,7 +38,10 @@ sudo rm /dev/multiflow_device*
 
 ```
 
-È stato creato anche uno script bash **module.sh** che esegue queste operazioni. Si può, quindi, eseguire direttamente lo script seguente.
+È stato creato anche uno script bash **module.sh** che esegue queste operazioni. Si può, quindi, eseguire direttamente lo script seguente:
+```bash
+sh module.sh
+```
 
 #### User
 ```bash
