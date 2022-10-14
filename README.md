@@ -20,7 +20,7 @@ Riassumendo l'utente, una volta aperta una sessione con un device file specifica
 ### RUNNING
 
 #### Driver
-'''bash
+```bash
 # compile kernel module (in ./driver)
 make all
 
@@ -36,12 +36,12 @@ sudo rmmod multiflow_driver.ko
 # remove device files
 sudo rm /dev/multiflow_device*
 
-'''
+```
 
 È stato creato anche uno script bash **module.sh** che esegue queste operazioni. Si può, quindi, eseguire direttamente lo script seguente.
 
 #### User
-'''bash
+```bash
 # compile user code
 make
 
@@ -49,13 +49,13 @@ make
 
 # run user code
 sudo ./user [Device_Path] Major_number Minor_number
-'''
+```
 
 * Come **Device Path** inserire preferibilmente */dev/multiflow_device*
 * Come **Major number** vedere tramite il comando 
-'''bash
+```bash
 sudo dmsesg
-'''
+```
 * Come **Minor number** inserire un numero compreso tra 0 e 127
 
 
