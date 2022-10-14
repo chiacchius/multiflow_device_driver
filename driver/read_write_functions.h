@@ -105,7 +105,7 @@ size_t write_work_schedule(Object_state *object, Session *session, const char *b
 
     ret = copy_from_user((char *)packed_work->data, buff, len);
     packed_work->minor = minor;
-    object->available_bytes += (len - ret);
+    object->available_bytes -= (len - ret);
     lp_bytes[minor]+= (len - ret);
 
     printk("%s: work buffer allocation success\n", MODNAME);
@@ -122,7 +122,6 @@ void delayed_write(struct work_struct *delayed_work){
     packed_work_struct *packed_work = container_of(delayed_work, packed_work_struct, work);
     int minor = packed_work->minor;
     Object_state *object = &objects[minor];
-    printk("%s: minor: %d\n", MODNAME, minor);
     Flow *flow = &object->flows[LOW_PRIORITY];
 
     lock(object, minor);
