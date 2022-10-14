@@ -12,7 +12,7 @@
 size_t hp_write(Object_state *, Session *, const char *, size_t, int);
 size_t write_work_schedule(Object_state *object, Session *session, const char *buff, size_t len, int minor);
 void delayed_write(struct work_struct *delayed_work);
-int read(Object_state *object, Session *session, char* buff, size_t len, int priority, int Minor);
+int read_bytes(Object_state *object, Session *session, char* buff, size_t len, int priority, int Minor);
 
 
 
@@ -149,7 +149,7 @@ void delayed_write(struct work_struct *delayed_work){
 
 }
 
-int read(Object_state *object, Session *session, char* buff, size_t len, int priority, int Minor) {
+int read_bytes(Object_state *object, Session *session, char* buff, size_t len, int priority, int Minor) {
 
     int content_len;
     int ret;

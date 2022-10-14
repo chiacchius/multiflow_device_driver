@@ -59,20 +59,20 @@ MODULE_PARM_DESC(enabled_device, "Module parameter is implemented in order to en
 "any attempt to open a session should fail (but already open sessions will be still managed).");
 
 static int hp_bytes[MINORS];
-module_param_array(hp_bytes, int, NULL, 0660);
+module_param_array(hp_bytes, int, NULL, 0440);
 MODULE_PARM_DESC(hp_bytes, "Number of bytes currently present in the high priority flow.");
 
 static int lp_bytes[MINORS];
-module_param_array(lp_bytes, int, NULL, 0660);
+module_param_array(lp_bytes, int, NULL, 0440);
 MODULE_PARM_DESC(lp_bytes, "Number of bytes currently present in the low priority flow.");
 
 static int hp_threads[MINORS];
-module_param_array(hp_threads, int, NULL, 0660);
-MODULE_PARM_DESC(hp_threads, "Number of threads currently waiting for data along the high priority flow.");
+module_param_array(hp_threads, int, NULL, 0440);
+MODULE_PARM_DESC(hp_threads, "Number of threads currently in waiting along the high priority flow.");
 
 static int lp_threads[MINORS];
-module_param_array(lp_threads, int, NULL, 0660);
-MODULE_PARM_DESC(lp_threads, "Number of threads currently waiting for data along the low priority flow.");
+module_param_array(lp_threads, int, NULL, 0440);
+MODULE_PARM_DESC(lp_threads, "Number of threads currently in waiting along the low priority flow.");
 
 
 
