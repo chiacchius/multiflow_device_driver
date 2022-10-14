@@ -122,7 +122,7 @@ void delayed_write(struct work_struct *delayed_work){
     packed_work_struct *packed_work = container_of(delayed_work, packed_work_struct, work);
     int minor = packed_work->minor;
     Object_state *object = &objects[minor];
- printk("%s: minor: %d\n", MODNAME, minor);
+    printk("%s: minor: %d\n", MODNAME, minor);
     Flow *flow = &object->flows[LOW_PRIORITY];
 
     lock(object, minor);

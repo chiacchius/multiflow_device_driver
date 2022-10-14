@@ -109,7 +109,7 @@ static int dev_open(struct inode *inode, struct file *file) {
 
     Session *session;
 
-    if(Minor >= MINORS){
+    if(Minor >= MINORS || Minor<0){
         return -ENODEV;
     }
     
