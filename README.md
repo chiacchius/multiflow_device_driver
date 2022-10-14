@@ -52,10 +52,10 @@ sudo ./user [Device_Path] Major_number Minor_number
 ```
 
 * Come **Device Path** inserire preferibilmente */dev/multiflow_device*
-* Come **Major number** vedere tramite il comando 
+* Come **Major_number** eseguire il comando
 ```bash
 sudo dmsesg
 ```
-* Come **Minor number** inserire un numero compreso tra 0 e 127
+* Come **Minor_number** inserire un numero compreso tra 0 e 127
 
 
