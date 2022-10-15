@@ -56,32 +56,54 @@ static long dev_ioctl(struct file *filp, unsigned int command, unsigned long par
     switch(command){
 
 
-        case LOW_PRIORITY_IOCTL:
+        case CHANGE_PRIORITY_IOCTL:
 
-            session->priority = LOW_PRIORITY;
-            printk("%s: User decided to set priority to: LOW_PRIORITY\n", MODNAME);
-            break;
+            
+            if (param == LOW_PRIORITY)
+            {
+                printk("%s: User decided to change priority to: LOW_PRIORITY\n", MODNAME);
+                break;
+            }
+            else if (param == HIGH_PRIORITY){
+                printk("%s: User decided to change priority to: HIGH_PRIORITY\n", MODNAME);
+                break;
+            }
+            
+            session->priority = param;
+            
+            
 
-        case HIGH_PRIORITY_IOCTL:
+        /*case CHANGE_PRIORITY_IOCTL:
 
             session->priority = HIGH_PRIORITY;
             printk("%s: User decided to set priority to: HIGH_PRIORITY\n", MODNAME);
-            break;
+            break;*/
 
 
-        case BLOCKING_IOCTL:
+        case CHANGE_BLOCKING_IOCTL:
 
-            session->blocking = BLOCKING;
-            printk("%s: User decided to set blocking to: BLOCKING\n", MODNAME);
-            break;
+            if (param == 0)
+            {
+                printk("%s: User decided to change blocking to: NON_BLOCKING\n", MODNAME);
+                session->timeout=0;
+                session->blocking=NON_BLOCKING;
+                break;
+            }
+            else if (param > 0){
+                printk("%s: User decided to change blocking to: BLOCKING\n", MODNAME);
+                session->timeout=param;
+                session->blocking=BLOCKING;
+                break;
+            }
+            
+            session->priority = param;
 
 
-        case NON_BLOCKING_IOCTL:
+        /*case NON_BLOCKING_IOCTL:
 
             session->blocking = NON_BLOCKING;
             printk("%s: User decided to set blocking to: NON_BLOCKING\n", MODNAME);
-            break;
-
+            break;*/
 
         case TIMEOUT_IOCTL:
 
@@ -238,7 +260,7 @@ static ssize_t dev_read(struct file *filp, char *buff, size_t len, loff_t *off){
          "[major,minor] number [%d,%d]\n", MODNAME, Major, Minor);
         }
 
-        bytes_read = read(object, session, buff, len, HIGH_PRIORITY, Minor);
+        bytes_read = read_bytes(object, session, buff, len, HIGH_PRIORITY, Minor);
 
     }
     else {
@@ -254,7 +276,7 @@ static ssize_t dev_read(struct file *filp, char *buff, size_t len, loff_t *off){
          "[major,minor] number [%d,%d]\n", MODNAME, Major, Minor);
         }
 
-        bytes_read = read(object, session, buff, len, LOW_PRIORITY, Minor);
+        bytes_read = read_bytes(object, session, buff, len, LOW_PRIORITY, Minor);
 
 
     }

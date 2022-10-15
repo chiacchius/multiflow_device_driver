@@ -138,13 +138,13 @@ int main(int argc, char *argv[]){
             case 1: //write 
            
 
-            memset(rw_buff, 0, MAX_BYTES);
-            printf("What do you want to write?: ");
-            fgets(rw_buff, sizeof(rw_buff), stdin);
-            rw_buff[strcspn(rw_buff, "\n")] = 0;
-            ret = write(fd, rw_buff, min(MAX_BYTES, strlen(rw_buff)));
-            if (ret==-1) printf("Could not write on driver");
-            else printf("Written %ld bytes on driver: %s\n", min(MAX_BYTES, strlen(rw_buff)), rw_buff);
+                memset(rw_buff, 0, MAX_BYTES);
+                printf("What do you want to write?: ");
+                fgets(rw_buff, sizeof(rw_buff), stdin);
+                rw_buff[strcspn(rw_buff, "\n")] = 0;
+                ret = write(fd, rw_buff, min(MAX_BYTES, strlen(rw_buff)));
+                if (ret==-1) printf("Could not write on driver");
+                else printf("Written %ld bytes on driver: %s\n", min(MAX_BYTES, strlen(rw_buff)), rw_buff);
             
             
             
@@ -154,32 +154,32 @@ int main(int argc, char *argv[]){
             case 2: //read
 
 
-            memset(buff, 0, MAX_BYTES);
-            memset(rw_buff, 0, MAX_BYTES);
-            printf("\nHow many bytes do you want to read?: ");
-            fgets(buff, sizeof(buff), stdin);
-            bytes_num = atoi(buff);
-            ret = read(fd, rw_buff, min(MAX_BYTES, bytes_num));
-            if (ret==-1) printf("Could not read from driver\n");
-            else printf("Read %ld bytes from driver: \n%s\n", min(MAX_BYTES, strlen(rw_buff)), rw_buff);
+                memset(buff, 0, MAX_BYTES);
+                memset(rw_buff, 0, MAX_BYTES);
+                printf("\nHow many bytes do you want to read?: ");
+                fgets(buff, sizeof(buff), stdin);
+                bytes_num = atoi(buff);
+                ret = read(fd, rw_buff, min(MAX_BYTES, bytes_num));
+                if (ret==-1) printf("Could not read from driver\n");
+                else printf("Read %ld bytes from driver: \n%s\n", min(MAX_BYTES, strlen(rw_buff)), rw_buff);
 
 
             break;
 
 
-            case 3: //new settings
+            case 3: //cambiamento dei valori della sessione
 
-            new_settings();
+                new_settings();
 
-            break;
+                break;
             
-            case 4:
+            case 4: //stato attuale del device
             
             	get_status(Major, Minor);
             	
             	break;
 
-            case 5:
+            case 5: //abilitare o disabilitare un device file a scelta
             
                 change_enabling();
                 
@@ -231,7 +231,7 @@ void new_settings(){
     printf("*----------------------------------------------------------*\n");
     printf("YOU CAN CHOOSE YOUR SESSION SETTINGS:\n");
     printf("1) Set priority\n");
-    printf("2) Set blocking\n");
+    printf("2) Set blocking and timeout\n");
     printf("3) Set timeout\n");
     printf("*----------------------------------------------------------*\n");
 
@@ -239,6 +239,7 @@ void new_settings(){
     while(1){
 
         //scanf("%s", op);
+        memset(op, 0, 10);
         memset(dec, 0, 10);
 	    fgets(op, sizeof(op), stdin);
         operation = atoi(op);
@@ -256,15 +257,16 @@ void new_settings(){
                 fgets(dec, sizeof(dec), stdin);
                 dec[strcspn(dec, "\n")] = 0;
                 decision = atoi(dec);
-                decision +=2;
+                
+                operation +=2;
                 memset(dec, 0, 10);
                 settings.priority = decision;
                 
-                printf("your decision: +%d+\n", decision);
+          
                 
                
 
-                ret = ioctl(fd, decision, timeout);
+                ret = ioctl(fd, operation, decision-1);
                 if (ret == -1) goto exit;
                 
                 
@@ -284,6 +286,59 @@ void new_settings(){
 
             case 2:
 
+                printf("Decide what type of blocking you want:\n");
+                printf("1) BLOCKING\n");
+                printf("2) NON_BLOCKING\n");
+                //scanf("%s", dec);
+                fgets(dec, sizeof(dec), stdin);
+                dec[strcspn(dec, "\n")] = 0;
+                decision = atoi(dec);
+                operation +=2;
+                memset(dec, 0, 10);
+
+
+                settings.blocking = decision;
+                
+                if (decision==1){
+
+                    printf("Decide how long you can wait for blocking operation completion: ");
+            	    fgets(dec, sizeof(dec), stdin);
+          
+                    dec[strcspn(dec, "\n")] = 0;
+                    decision = atoi(dec);
+                    memset(dec, 0, 10);
+                    ret = ioctl(fd, operation, decision);
+                    if (ret == -1) goto exit;
+
+                }
+                else{
+                    printf("Your decision is non-blocking operation so timeout is set to 0 ");
+            	
+                    ret = ioctl(fd, operation, 0);
+                    if (ret == -1) goto exit;
+                }
+                
+               
+
+                
+                
+                
+                printf("Do you want to continue changing settings? (y/n): ");
+                //scanf("%s", dec);
+                fgets(dec, sizeof(dec), stdin);
+                dec[strcspn(dec, "\n")] = 0;
+                printf("%s+\n", dec);
+
+                if (strcmp(dec, "n")==0)
+                {
+                    memset(dec, 0, 10);
+                    
+                    goto stop;
+                }
+                memset(dec, 0, 10);
+
+            /*case 2:
+
 
                 
                 printf("Decide what type of blocking you want:\n");
@@ -299,7 +354,7 @@ void new_settings(){
 
                 decision += 4;
                 
-                printf("your decision: %d\n", decision);
+                
 
 
                 ret = ioctl(fd, decision, timeout);
@@ -360,7 +415,7 @@ void new_settings(){
                 
                 
             
-
+*/
             default:
 
                 printf("Illegal command: retry\n");
