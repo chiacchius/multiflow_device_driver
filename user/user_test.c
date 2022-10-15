@@ -283,6 +283,9 @@ void new_settings(){
                     goto stop;
                 }
                 memset(dec, 0, 10);
+                break;
+
+
 
             case 2:
 
@@ -336,6 +339,7 @@ void new_settings(){
                     goto stop;
                 }
                 memset(dec, 0, 10);
+                break;
 
             /*case 2:
 
