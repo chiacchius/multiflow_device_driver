@@ -48,12 +48,6 @@
 #define CHANGE_BLOCKING_IOCTL 4
 
 
-#define LOW_PRIORITY_IOCTL 3
-#define HIGH_PRIORITY_IOCTL 4
-#define BLOCKING_IOCTL 5
-#define NON_BLOCKING_IOCTL 6
-#define TIMEOUT_IOCTL 7
-
 
 static int enabled_device[MINORS];
 module_param_array(enabled_device, int, NULL, 0660);

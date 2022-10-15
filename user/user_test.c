@@ -232,7 +232,6 @@ void new_settings(){
     printf("YOU CAN CHOOSE YOUR SESSION SETTINGS:\n");
     printf("1) Set priority\n");
     printf("2) Set blocking and timeout\n");
-    printf("3) Set timeout\n");
     printf("*----------------------------------------------------------*\n");
 
 
@@ -329,85 +328,7 @@ void new_settings(){
                 
               
 
-            /*case 2:
-
-
-                
-                printf("Decide what type of blocking you want:\n");
-                printf("1) BLOCKING\n");
-                printf("2) NON_BLOCKING\n");
-                //scanf("%s", dec);
-                fgets(dec, sizeof(dec), stdin);
-                dec[strcspn(dec, "\n")] = 0;
-                decision = atoi(dec);
-                memset(dec, 0, 10);
-
-                settings.blocking = decision;
-
-                decision += 4;
-                
-                
-
-
-                ret = ioctl(fd, decision, timeout);
-                if (ret == -1) goto exit;
-                
-                
-                printf("Do you want to continue changing settings? (y/n): ");
-                //scanf("%s", dec);
-                fgets(dec, sizeof(dec), stdin);
-                dec[strcspn(dec, "\n")] = 0;
-                
-                
-                
-
-                if (strcmp(dec, "n")==0)
-                {
-
-                    memset(dec, 0, 10);
-                    goto stop;
-                }
-                memset(dec, 0, 10);
-                
-
-            case 3:
             
-            	printf("Decide how long you can wait for operation completion: ");
-            	fgets(dec, sizeof(dec), stdin);
-          
-                dec[strcspn(dec, "\n")] = 0;
-                decision = atoi(dec);
-                memset(dec, 0, 10);
-                
-            	settings.timeout = decision;
-            	
-            	decision = 7;
-            	
-            	ret = ioctl(fd, decision, settings.timeout);
-                if (ret == -1) goto exit;
-                
-                
-                printf("Do you want to continue changing settings? (y/n): ");
-                //scanf("%s", dec);
-                fgets(dec, sizeof(dec), stdin);
-                dec[strcspn(dec, "\n")] = 0;
-                
-                
-                
-
-                if (strcmp(dec, "n")==0)
-                {
-
-                    memset(dec, 0, 10);
-                    goto stop;
-                }
-                memset(dec, 0, 10);
-
-                break;
-                
-                
-            
-*/
             default:
 
                 printf("Illegal command: retry\n");

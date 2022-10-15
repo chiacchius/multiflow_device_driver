@@ -74,12 +74,6 @@ static long dev_ioctl(struct file *filp, unsigned int command, unsigned long par
             
             
 
-        /*case CHANGE_PRIORITY_IOCTL:
-
-            session->priority = HIGH_PRIORITY;
-            printk("%s: User decided to set priority to: HIGH_PRIORITY\n", MODNAME);
-            break;*/
-
 
         case CHANGE_BLOCKING_IOCTL:
 
@@ -92,7 +86,7 @@ static long dev_ioctl(struct file *filp, unsigned int command, unsigned long par
             }
             else if (param > 0){
                 printk("%s: User decided to change blocking to: BLOCKING\n", MODNAME);
-                 printk("%s: User decided to change timeout to: %d\n", MODNAME, param);
+                printk("%s: User decided to change timeout to: %d\n", MODNAME, param);
                 session->timeout=param;
                 session->blocking=BLOCKING;
                 break;
@@ -101,13 +95,7 @@ static long dev_ioctl(struct file *filp, unsigned int command, unsigned long par
             break;
 
 
-        /*case NON_BLOCKING_IOCTL:
-
-            session->blocking = NON_BLOCKING;
-            printk("%s: User decided to set blocking to: NON_BLOCKING\n", MODNAME);
-            break;*/
-
-
+      
         default:
 
             printk("%s: Illegal command by user %d\n", MODNAME);
@@ -133,7 +121,7 @@ static int dev_open(struct inode *inode, struct file *file) {
     }
     
     if (enabled_device[Minor] == DISABLED) {
-        printk("%s: driver with minor %d is disabled, and cannot be opened.\n", MODNAME, Minor);
+        printk("%s: device with minor %d is disabled, and cannot be opened.\n", MODNAME, Minor);
         return -ENOMEM;
     }
 
@@ -154,7 +142,7 @@ static int dev_open(struct inode *inode, struct file *file) {
 
 
 
-    printk("%s: driver file successfully opened for object with minor %d\n", MODNAME, Minor);
+    printk("%s: device file successfully opened for object with minor %d\n", MODNAME, Minor);
     return 0;
 
 }
