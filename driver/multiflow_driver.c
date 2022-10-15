@@ -70,6 +70,7 @@ static long dev_ioctl(struct file *filp, unsigned int command, unsigned long par
             }
             
             session->priority = param;
+            break;
             
             
 
@@ -91,12 +92,13 @@ static long dev_ioctl(struct file *filp, unsigned int command, unsigned long par
             }
             else if (param > 0){
                 printk("%s: User decided to change blocking to: BLOCKING\n", MODNAME);
+                 printk("%s: User decided to change timeout to: %d\n", MODNAME, param);
                 session->timeout=param;
                 session->blocking=BLOCKING;
                 break;
             }
             
-            session->priority = param;
+            break;
 
 
         /*case NON_BLOCKING_IOCTL:
@@ -105,11 +107,6 @@ static long dev_ioctl(struct file *filp, unsigned int command, unsigned long par
             printk("%s: User decided to set blocking to: NON_BLOCKING\n", MODNAME);
             break;*/
 
-        case TIMEOUT_IOCTL:
-
-            session->timeout = param;
-            printk("%s: User decided to set timeout to: %d\n", MODNAME,  param);
-            break;
 
         default:
 

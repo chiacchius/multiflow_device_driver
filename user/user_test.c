@@ -225,7 +225,7 @@ void new_settings(){
     char dec[10];
     int decision;
     int ret;
-    int timeout=settings.timeout;
+
 
     system("clear");
     printf("*----------------------------------------------------------*\n");
@@ -266,7 +266,7 @@ void new_settings(){
                 
                
 
-                ret = ioctl(fd, operation, decision-1);
+                ret = ioctl(fd, 3, decision-1);
                 if (ret == -1) goto exit;
                 
                 
@@ -283,7 +283,7 @@ void new_settings(){
                     goto stop;
                 }
                 memset(dec, 0, 10);
-                break;
+           
 
 
 
@@ -310,36 +310,24 @@ void new_settings(){
                     dec[strcspn(dec, "\n")] = 0;
                     decision = atoi(dec);
                     memset(dec, 0, 10);
-                    ret = ioctl(fd, operation, decision);
+                    settings.timeout = decision;
+                    ret = ioctl(fd, 4, decision);
                     if (ret == -1) goto exit;
 
                 }
                 else{
                     printf("Your decision is non-blocking operation so timeout is set to 0 ");
-            	
+            	    settings.timeout = 0;
                     ret = ioctl(fd, operation, 0);
                     if (ret == -1) goto exit;
                 }
                 
                
-
+                goto stop;
                 
                 
                 
-                printf("Do you want to continue changing settings? (y/n): ");
-                //scanf("%s", dec);
-                fgets(dec, sizeof(dec), stdin);
-                dec[strcspn(dec, "\n")] = 0;
-                printf("%s+\n", dec);
-
-                if (strcmp(dec, "n")==0)
-                {
-                    memset(dec, 0, 10);
-                    
-                    goto stop;
-                }
-                memset(dec, 0, 10);
-                break;
+              
 
             /*case 2:
 
@@ -427,18 +415,18 @@ void new_settings(){
 
         }
     
-exit: 
-        printf("Error on ioctl() (%s)\n", strerror(errno));
-        close(fd);
-        exit(-1);
-stop:
-	return;
+
 
     }
 
 
 
-
+    exit: 
+        printf("Error on ioctl() (%s)\n", strerror(errno));
+        close(fd);
+        exit(-1);
+    stop:
+	    return;
 
 
 
