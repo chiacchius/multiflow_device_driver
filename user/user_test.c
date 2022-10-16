@@ -228,8 +228,8 @@ void new_settings(){
     int ret;
 
 
-    system("clear");
-    printf("*----------------------------------------------------------*\n");
+    
+    printf("\n*----------------------------------------------------------*\n");
     printf("YOU CAN CHOOSE YOUR SESSION SETTINGS:\n");
     printf("1) Set priority\n");
     printf("2) Set blocking and timeout\n");
@@ -253,7 +253,7 @@ void new_settings(){
                 printf("Decide what type of priority you want:\n");
                 printf("1) LOW_PRIORITY\n");
                 printf("2) HIGH_PRIORITY\n");
-                //scanf("%s", dec);
+  
                 fgets(dec, sizeof(dec), stdin);
                 dec[strcspn(dec, "\n")] = 0;
                 decision = atoi(dec);
@@ -271,10 +271,10 @@ void new_settings(){
                 
                 
                 printf("Do you want to continue changing settings? (y/n): ");
-                //scanf("%s", dec);
+
                 fgets(dec, sizeof(dec), stdin);
                 dec[strcspn(dec, "\n")] = 0;
-                printf("%s+\n", dec);
+
 
                 if (strcmp(dec, "n")==0)
                 {
@@ -292,7 +292,7 @@ void new_settings(){
                 printf("Decide what type of blocking you want:\n");
                 printf("1) BLOCKING\n");
                 printf("2) NON_BLOCKING\n");
-                //scanf("%s", dec);
+
                 fgets(dec, sizeof(dec), stdin);
                 dec[strcspn(dec, "\n")] = 0;
                 decision = atoi(dec);
