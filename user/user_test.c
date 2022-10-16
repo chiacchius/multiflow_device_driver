@@ -89,7 +89,8 @@ int main(int argc, char *argv[]){
 
     for (int i = 0; i < MINORS; i++)
     {
-        sprintf(buff, "mknod %s%d c %d %i 2> /dev/null\n", path, i, Major, i);
+        sprintf(buff, "mknod %s%d c %d %i\n", path, i, Major, i);
+        printf("\n%s\n", buff);
         system(buff);
 
     }
@@ -404,13 +405,13 @@ int find_value(char *path, int minor){
     it=0;
     while( it!=minor ) {
         token = strtok(NULL, ",");
-        //printf( "%s\n", token ); //printing each token
+       
         it++;
 
     }
 
     value = atoi(token);
-    //printf("%d\n", value);
+
 	
 	fclose(file_stream);
 	
@@ -461,14 +462,12 @@ void change_enabling(){
     
     if (enable == 0){
         
-        //sprintf(command, "echo 1 > %s", path);
-        //system(command);
+        
         new_enable_status = '1';
 
     }
     else {
-        //sprintf(command, "echo 0 > %s", path);
-        //system(command);
+        
         new_enable_status = '0';
     }
 

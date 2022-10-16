@@ -345,7 +345,7 @@ void cleanup_module(void)
         for (j = 0; j < FLOWS; j++)
         {
             current_node = objects[i].flows[j].obj_head;
-            while (current_node->next!=NULL){
+            while (current_node!=NULL){
                 temp = current_node->next;
                 kfree(current_node->stream_content);
                 kfree(current_node);
