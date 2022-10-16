@@ -338,12 +338,19 @@ void cleanup_module(void)
 
     int i, j;
 
+    Object_content* current_node;
+    Object_content* temp;
     for (i = 0; i < MINORS; i++)
     {
         for (j = 0; j < FLOWS; j++)
         {
-            kfree(objects[i].flows[j].obj_head->stream_content);
-            kfree(objects[i].flows[j].obj_head);
+            current_node = objects[i].flows[j].obj_head;
+            while (current_node->next!=NULL){
+                temp = current_node->next;
+                kfree(current_node->stream_content);
+                kfree(current_node);
+                current_node = temp;
+            }
         }
     }
 
