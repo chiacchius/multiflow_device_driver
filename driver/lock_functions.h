@@ -1,6 +1,14 @@
-//
-// Created by chacchius on 05/10/22.
-//
+/**
+ * 
+ * Header per la gestione delle funzioni di lock.
+ * Contiene le funzioni di appoggio per il corretto funzionamento
+ * delle operazioni bloccanti e non.
+ * 
+ * Author: Matteo Chiacchia (0300177) 
+ * 
+ * */
+
+
 
 #ifndef SOAPROJECT_LOCK_FUNCTIONS_H
 #define SOAPROJECT_LOCK_FUNCTIONS_H
@@ -8,17 +16,34 @@
 #include "values.h"
 #include "structs.h"
 
+
+
 int try_lock(Object_state *object, Session *session, int minor);
 int add_in_waitqueue(unsigned long timeout, struct mutex *synchronizer, wait_queue_head_t *wait_queue);
 int lock(Object_state *object, int minor);
 
 
+
+
+/**
+ * Funzione per la gestione del mutex_trylock.
+ * Se l'operazione è non bloccante e mutex_trylock fallisce allora si ritorna errore.
+ * Altrimenti, se l'operazione è bloccante e mutex_trylock fallisce, si aspetta il tempo di timeout
+ * in cui si tenta di prendere il lock, aggiungendo il thread nella wait_queue.
+ * 
+ * @object: indirizzo della struct di gestione del device file 
+ * @session: indirizzo della struct rappresentante la sessione attuale
+ * @minor: minor number del device file
+ *
+ * Returns: 0 in caso di fallimento, 1 in caso di successo
+ * */
 int try_lock(Object_state *object, Session *session, int minor) {
 
     Flow *actual_flow = &object->flows[session->priority];
     int lock = mutex_trylock(&(actual_flow->operation_synchronizer));
     int ret=0;
 
+    // se il lock non è stato acquisito si gestisce il caso bloccante
     if (lock==0){
 
         printk("%s: lock not available\n", MODNAME);
@@ -65,6 +90,15 @@ int try_lock(Object_state *object, Session *session, int minor) {
     return 1;
 }
 
+/**
+ * Funzione che mette il thread nella wait_queue e si mette in attesa del timeout
+ * 
+ * @timeout: valore di timeout della sessione
+ * @synchronizer: indirizzo del mutex che si tenta di lockare
+ * @wait_queue: indirizzo della wait_queue in cui il thread viene aggiunto
+ * 
+ * Returns: 0 lock non acquisito, 1 lock acquisito
+ * */
 int add_in_waitqueue(unsigned long timeout, struct mutex *synchronizer, wait_queue_head_t *wait_queue) {
 
     if (timeout<=0){
@@ -79,6 +113,19 @@ int add_in_waitqueue(unsigned long timeout, struct mutex *synchronizer, wait_que
 }
 
 
+
+
+
+/**
+ * Funzione che mette il thread in attesa di prendere ill lock nel caso di 
+ * deferred work. Non potendo fallire l'attesa continua fino al momento in cui il thread
+ * non riesce ad acquisire il lock
+ * 
+ * @object: indirizzo della struct di gestione del device file 
+ * @minor: minor number del device file
+ * 
+ * Returns: 1
+ * */
 int lock(Object_state *object, int minor) {
 
     Flow *flow = &object->flows[LOW_PRIORITY];

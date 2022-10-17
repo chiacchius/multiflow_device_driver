@@ -1,6 +1,15 @@
-//
-// Created by chacchius on 05/10/22.
-//
+/**
+ * 
+ * 
+ * Header per la gestione delle funzioni read & write.
+ * Contiene le funzioni di appoggio utilizzate da dev_read e dev_write
+ * in funzione della priorità attuale della sessione.
+ * 
+ * 
+ * Author: Matteo Chiacchia (0300177) 
+ * 
+ * 
+ * */
 
 #ifndef SOAPROJECT_READ_WRITE_FUNCTIONS_H
 #define SOAPROJECT_READ_WRITE_FUNCTIONS_H
@@ -16,6 +25,30 @@ int read_bytes(Object_state *object, Session *session, char* buff, size_t len, i
 
 
 
+
+
+/** 
+ * 
+ * Funzione di appoggio per la scrittura HIGH_PRIORITY.
+ * Viene eseguita la scrittura in maniera sincrona aggiungendo
+ * i bytes scritti dall'utente nel campo "stream_content" dell'ultimo 
+ * blocco della lista collegata.
+ * Viene in seguito appeso un blocco empty per prepararsi alla
+ * scrittura successiva.
+ * Si aggiorna infine il parametro del modulo hp_bytes[minor].
+ * 
+ * 
+ * 
+ * @object: indirizzo della struct di gestione del device file 
+ * @session: indirizzo della struct rappresentante la sessione attuale
+ * @buff: stringa contenente i bytes scritti dall'utente
+ * @len: lunghezza di buff
+ * @minor: minor number del device file
+ * 
+ *
+ * Returns: size_t rappresentante il numero di bytes scritti.
+ * 
+ * */
 size_t hp_write(Object_state *object, Session *session, const char *buff, size_t len , int minor){
 
 
@@ -35,9 +68,12 @@ size_t hp_write(Object_state *object, Session *session, const char *buff, size_t
         return -1;
     }
 
+
     printk("%s: User write %d bytes\n", MODNAME, len);
-   
+    
+    //allocazione buffer di scrittura sul device file
     buffer = kzalloc(len + 1, GFP_ATOMIC);
+    //allocazione empty block per scrittura successiva
     new_content = kzalloc(sizeof(Object_content), GFP_ATOMIC);
 
     if (buffer==NULL || new_content == NULL) {
@@ -49,7 +85,8 @@ size_t hp_write(Object_state *object, Session *session, const char *buff, size_t
 
 
     
-
+    //spostamento lungo la lista collegata per arrivare 
+    //all'ultimo blocco su cui scrivere i nuovi bytes
     while (current_node->next != NULL)
         current_node = current_node->next;
 
@@ -61,20 +98,43 @@ size_t hp_write(Object_state *object, Session *session, const char *buff, size_t
     new_content->last_offset_read = 0;
     new_content->stream_content = NULL;
 
-    object->available_bytes -= (len-ret);
-    hp_bytes[minor]+=(len - ret);
+    object->available_bytes -= (len-ret); //diminuzione bytes disponibili del device file
+    hp_bytes[minor]+=(len - ret); //aggiornamento parametro
     return len - ret;
 
 }
 
 
+/** 
+ * 
+ * Funzione di appoggio per la scrittura LOW_PRIORITY.
+ * Si alloca la struttura di gestione del deferred work e si inseriscono
+ * i metadati della scrittura al suo interno.
+ * Si aggiungono i bytes scritti dall'utente in un buffer temporaneo per passarli
+ * in seguito al device file durante il deferred work.
+ * Si aggiorna infine il parametro del modulo lp_bytes[minor].
+ * Infine si inzializza e si schedula il deferred work tramite work_queue.
+ * 
+ * 
+ * 
+ * @object: indirizzo della struct di gestione del device file 
+ * @session: indirizzo della struct rappresentante la sessione attuale
+ * @buff: stringa contenente i bytes scritti dall'utente
+ * @len: lunghezza di buff
+ * @minor: minor number del device file
+ * 
+ *
+ * Returns: size_t rappresentante il numero di bytes che saranno scritti (per notificare l'utente
+ * in maniera sincrona).
+ * 
+ * */
 
 size_t write_work_schedule(Object_state *object, Session *session, const char *buff, size_t len, int minor) {
     int ret;
     int lock;
     packed_work_struct *packed_work;
     
-    lock = try_lock(object, session, minor);
+    lock = try_lock(object, session, minor); 
 
     if (lock==0){
         printk("%s: Cannot acquire the lock, operation failed\n", MODNAME);
@@ -103,10 +163,10 @@ size_t write_work_schedule(Object_state *object, Session *session, const char *b
         return -1;
     }
 
-    ret = copy_from_user((char *)packed_work->data, buff, len);
+    ret = copy_from_user((char *)packed_work->data, buff, len); //copia dey bytes utente in un buffer temporaneo
     packed_work->minor = minor;
-    object->available_bytes -= (len - ret);
-    lp_bytes[minor]+= (len - ret);
+    object->available_bytes -= (len - ret); //occupazione logica di bytes disponibili del device file
+    lp_bytes[minor]+= (len - ret); //aggiornamento parametro
 
     printk("%s: work buffer allocation success\n", MODNAME);
 
@@ -116,6 +176,27 @@ size_t write_work_schedule(Object_state *object, Session *session, const char *b
     return len - ret;
 }
 
+
+
+/** 
+ * 
+ * Funzione di esecuzione del deferred work.
+ * Si cerca di prendere il lock e si rimane in attesa perchè 
+ * la scrittura non può fallire. 
+ * Ottenuto il lock si copiano i bytes dal buffer temporaneo
+ * al device file, scrivendo i bytes logicamente occupati in 
+ * precedenza.
+ * Si dealloca la memoria infine la memoria utilizzata per il 
+ * deferred work e si rilascia il lock
+ * 
+ * 
+ * 
+ * @delayed_work: indirizzo della struttura work_struct
+ * 
+ *
+ * Returns: void
+ * 
+ * */
 void delayed_write(struct work_struct *delayed_work){
 
 
@@ -149,15 +230,42 @@ void delayed_write(struct work_struct *delayed_work){
 
 }
 
+
+
+/** 
+ * 
+ * Funzione di appoggio per la lettura.
+ * La scrittura viene eseguita in modalità FIFO e si comincia
+ * a leggere dalla testa della lista collegata.
+ * Si verifica se i bytes da leggere sono presenti in un
+ * solo blocco o si deve leggere su più blocchi.
+ * A seconda dei casi si copiano volta per volta i bytes dalla 
+ * lista collegata al buffer utente. Nel momento in cui un blocco
+ * è stato consumato si dealloca dalla memoria e si sposta la
+ * head della lista al blocco successivo.
+ * 
+ * 
+ * 
+ * @object: indirizzo della struct di gestione del device file 
+ * @session: indirizzo della struct rappresentante la sessione attuale
+ * @buff: indirizzo del buffer sui cui copiare i bytes da leggere
+ * @len: numero di bytes da leggere
+ * @priority: LOW_PRIORITY o HIGH_PRIORITY
+ * @minor: minor number del device file
+ * 
+ *
+ * Returns: int rappresentante il numero di bytes letti
+ * 
+ * */
 int read_bytes(Object_state *object, Session *session, char* buff, size_t len, int priority, int Minor) {
 
     int content_len;
     int ret;
     Object_content *content_to_remove;
-    //si effettua un trylock lock
+    //si effettua un trylock 
     int lock = try_lock(object, session, Minor);
     Flow *flow = &object->flows[priority];
-    printk("%s: priority: %d\n", MODNAME, priority);
+    
     int cl_usr= clear_user(buff, len);
 
     if (lock==0){

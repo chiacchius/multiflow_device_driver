@@ -1,6 +1,27 @@
 /**
-    Programma per il testing utente del multiflow driver driver
-*/
+ * 
+ * USER PROGRAM TO TEST THE MULTIFLOW DEVICE DRIVER
+ * 
+ * Programma utente per l'utilizzo del driver implementato.
+ * Tutte le operazioni richieste possono essere effettuate 
+ * utilizzando questa semplice e intuitiva interfaccia a riga
+ * di comando.
+ * Eseguendo il programma di creano 128 nodi corrispondenti ai 
+ * minor numbers gestibili dal device driver per poi aprire una 
+ * sessione di I/O con uno di questi specificato durante il lancio
+ * dell'applicativo.
+ * Le operazioni eseguibili sono:
+ * 1) Scrivere sul device
+ * 2) Leggere dal device.
+ * 3) Cambiare tipo di sessione
+ * 4) Leggere i parametri del device file con cui si è aperta una sessione
+ * 5) Cambiare l'abiitazione di un device file a scelta
+ * 6) Chiudere la sessione e terminare il programma
+ * 
+ * Author: Matteo Chiacchia (0300177) 
+ * 
+ * 
+ * */
 
 
 #include <stdio.h>
@@ -15,6 +36,7 @@
 #define min(a,b) (((a)<(b))?(a):(b))
 #define max(a,b) (((a)>(b))?(a):(b))
 
+
 #define MINORS 128
 
 
@@ -24,8 +46,8 @@
 #define BLOCKING 0
 #define NON_BLOCKING 1
 
-#define MAX_DEVICE_BYTES 1000000
-#define MAX_BYTES 1024
+#define MAX_DEVICE_BYTES 1000000 //Numero max di bytes gestibili dal device file
+#define MAX_BLOCK_BYTES 1024 //Numero max di bytes che si possono scrivere su un unico blocco
 
 #define ENABLED_PATH "/sys/module/multiflow_driver/parameters/enabled_device"
 #define HP_BYTES_PATH "/sys/module/multiflow_driver/parameters/hp_bytes"
@@ -39,7 +61,7 @@ void get_status();
 int find_value(char* path, int minor);
 void change_enabling();
 
-typedef struct settings{
+typedef struct session_settings{
 
     int priority;
     int blocking;
@@ -49,8 +71,8 @@ typedef struct settings{
 
 
 
-char buff[MAX_BYTES];
-char rw_buff[MAX_BYTES];
+char buff[MAX_BLOCK_BYTES];
+char rw_buff[MAX_BLOCK_BYTES];
 int bytes_num;
 int fd;
 int Major, Minor;
@@ -58,6 +80,9 @@ char* path;
 
 
 Settings settings;
+
+
+
 
 int main(int argc, char *argv[]){
 
@@ -79,7 +104,7 @@ int main(int argc, char *argv[]){
     printf("*----------------------------------------------------------*\n\n\n");
 
     if (argc!=4){
-        printf("Usage: sudo ./user [DEVICE_PATH] *Major number* *Minor number*\n\n");
+        printf("Usage: sudo ./user [DEVICE_PATH] [Major_number] [Minor number]\n\n");
         exit(-1);
     }
 
@@ -87,6 +112,7 @@ int main(int argc, char *argv[]){
     Major = strtol(argv[2], NULL, 10);
     Minor = strtol(argv[3], NULL, 10);
 
+    // creazione dei 128 nodi che il device driver è in grado di gestire
     for (int i = 0; i < MINORS; i++)
     {
         sprintf(buff, "mknod %s%d c %d %i\n", path, i, Major, i);
@@ -98,12 +124,12 @@ int main(int argc, char *argv[]){
     //salvo in buff il nome del driver dedicato allo user
     sprintf(buff, "%s%d", path, Minor);
 
-    printf("(NOTICE: 128 devices were created. Your is %d in [0;127])\n", Minor);
+    printf("\n(NOTICE: 128 devices were created. Your is %d in [0;127])\n", Minor);
 
 
     char *device = (char *)strdup(buff);
 
-    fd = open(device, O_RDWR);
+    fd = open(device, O_RDWR); //apertura della sessione di I/O
 
     if (fd == -1)
     {
@@ -111,7 +137,7 @@ int main(int argc, char *argv[]){
         return -1;
     }
 
-    //default settings inizializzati
+    //settings della sessione di default
     settings.priority = HIGH_PRIORITY;
     settings.blocking = NON_BLOCKING;
     settings.timeout = 0;
@@ -123,7 +149,7 @@ int main(int argc, char *argv[]){
 
   
 
-
+    // fine inizializzazione ed effettivo utilizzo del device
     while(operation!=6){
 
 	
@@ -136,33 +162,33 @@ int main(int argc, char *argv[]){
         switch(operation){
         
 
-            case 1: //write 
+            case 1: //operazione di write 
            
 
-                memset(rw_buff, 0, MAX_BYTES);
+                memset(rw_buff, 0, MAX_BLOCK_BYTES);
                 printf("What do you want to write?: ");
                 fgets(rw_buff, sizeof(rw_buff), stdin);
                 rw_buff[strcspn(rw_buff, "\n")] = 0;
-                ret = write(fd, rw_buff, min(MAX_BYTES, strlen(rw_buff)));
+                ret = write(fd, rw_buff, min(MAX_BLOCK_BYTES, strlen(rw_buff)));
                 if (ret==-1) printf("Could not write on driver");
-                else printf("Written %ld bytes on driver: %s\n", min(MAX_BYTES, strlen(rw_buff)), rw_buff);
+                else printf("Written %ld bytes on driver: %s\n", min(MAX_BLOCK_BYTES, strlen(rw_buff)), rw_buff);
             
             
             
             break;
 
 
-            case 2: //read
+            case 2: //operazione di read
 
 
-                memset(buff, 0, MAX_BYTES);
-                memset(rw_buff, 0, MAX_BYTES);
+                memset(buff, 0, MAX_BLOCK_BYTES);
+                memset(rw_buff, 0, MAX_BLOCK_BYTES);
                 printf("\nHow many bytes do you want to read?: ");
                 fgets(buff, sizeof(buff), stdin);
                 bytes_num = atoi(buff);
-                ret = read(fd, rw_buff, min(MAX_BYTES, bytes_num));
+                ret = read(fd, rw_buff, min(MAX_BLOCK_BYTES, bytes_num));
                 if (ret==-1) printf("Could not read from driver\n");
-                else printf("Read %ld bytes from driver: \n%s\n", min(MAX_BYTES, strlen(rw_buff)), rw_buff);
+                else printf("Read %ld bytes from driver: \n%s\n", min(MAX_BLOCK_BYTES, strlen(rw_buff)), rw_buff);
 
 
             break;
@@ -186,7 +212,7 @@ int main(int argc, char *argv[]){
                 
                 break;
 
-            case 6:
+            case 6: //terminazione del programma
             
             	break; 
             
@@ -194,7 +220,7 @@ int main(int argc, char *argv[]){
             
 
 
-            default:
+            default: 
 
             printf("Illegal command: retry\n");
 
@@ -213,12 +239,19 @@ int main(int argc, char *argv[]){
     }
     
 
-    close(fd);
+    close(fd); //chiusura della sessione di I/O e terminazione del programma
 
     return 0;
 }
 
-
+/**
+ * 
+ * Funzione che chiama la ioctl per cambiare il tipo di sessione.
+ * Si può scegliere il livello di priorità e il tipo di operazione: bloccante o non bloccante.
+ * Nel caso si scelga un'operazione non bloccante non serve immettere un timeout, altrimenti
+ * viene chiesto all'utente di settare anche questo valore
+ * 
+ * */
 void new_settings(){
 
     char op[10];
@@ -229,16 +262,16 @@ void new_settings(){
 
 
     
-    printf("\n*----------------------------------------------------------*\n");
+    printf("\n\n*----------------------------------------------------------*\n");
     printf("YOU CAN CHOOSE YOUR SESSION SETTINGS:\n");
     printf("1) Set priority\n");
-    printf("2) Set blocking and timeout\n");
-    printf("*----------------------------------------------------------*\n");
+    printf("2) Set blocking and timeout (ms)\n");
+    printf("*----------------------------------------------------------*\n\n");
 
 
     while(1){
 
-        //scanf("%s", op);
+
         memset(op, 0, 10);
         memset(dec, 0, 10);
 	    fgets(op, sizeof(op), stdin);
@@ -260,7 +293,7 @@ void new_settings(){
                 
                 operation +=2;
                 memset(dec, 0, 10);
-                settings.priority = decision;
+                settings.priority = decision-1;
                 
           
                 
@@ -270,7 +303,7 @@ void new_settings(){
                 if (ret == -1) goto exit;
                 
                 
-                printf("Do you want to continue changing settings? (y/n): ");
+                printf("\nDo you want to continue changing settings? (y/n): ");
 
                 fgets(dec, sizeof(dec), stdin);
                 dec[strcspn(dec, "\n")] = 0;
@@ -300,23 +333,24 @@ void new_settings(){
                 memset(dec, 0, 10);
 
 
-                settings.blocking = decision;
+                
                 
                 if (decision==1){
 
-                    printf("Decide how long you can wait for blocking operation completion: ");
+                    printf("\nDecide how long you can wait for blocking operation completion: ");
             	    fgets(dec, sizeof(dec), stdin);
-          
                     dec[strcspn(dec, "\n")] = 0;
                     decision = atoi(dec);
                     memset(dec, 0, 10);
                     settings.timeout = decision;
+                    settings.blocking == BLOCKING;
                     ret = ioctl(fd, 4, decision);
                     if (ret == -1) goto exit;
 
                 }
                 else{
-                    printf("Your decision is non-blocking operation so timeout is set to 0 ");
+                    printf("\nYour decision is non-blocking operation so timeout is set to 0 \n");
+                    settings.blocking == NON_BLOCKING;
             	    settings.timeout = 0;
                     ret = ioctl(fd, operation, 0);
                     if (ret == -1) goto exit;
@@ -356,24 +390,40 @@ void new_settings(){
 }
 
 
-
+/**
+ * 
+ * Funzione utilizzata per stampare a schermo i parametri del device
+ * insieme ad altre informazioni come il tipo di sessione.
+ * 
+ * */
 void get_status(){
 
-	printf("Actually in driver with Major = %d and Minor = %d we have:\n", Major, Minor);
+    printf("\n*-------------------------------------------------------------------------------*\n");
+    printf("*--------------------- MULTI-FLOW DEVICE DRIVER STATUS --------------------------*\n");
+    printf("*--------------------------------------------------------------------------------*\n");   
+
+	printf("\nActually in driver with MAJOR = %d and MINOR = %d we have:\n", Major, Minor);
 	
 	char Device[30];
     sprintf(Device, "Device[%d][%d]", Major, Minor);
 	
-	printf("*-----------------------------------------------------------------*\n");
-	printf("* %s: Timeout = %d                                                \n" , Device, settings.timeout);
-	printf("* %s: Available bytes = %d                                        \n", Device,  MAX_DEVICE_BYTES- find_value(HP_BYTES_PATH, Minor) - find_value(LP_BYTES_PATH, Minor));
-	printf("* %s: Number of bytes in high priority flow = %d                  \n" , Device, find_value(HP_BYTES_PATH, Minor));
-	printf("* %s: Number of bytes in low priority flow = %d                   \n" , Device, find_value(LP_BYTES_PATH, Minor));
+	if (settings.priority==LOW_PRIORITY) printf("* %s: Priority = LOW_PRIORITY\n" , Device);
+    else printf("* %s: Priority = HIGH_PRIORITY\n" , Device);
+
+    if (settings.blocking == BLOCKING) printf("* %s: Blocking = BLOCKING\n" , Device);
+    else printf("* %s: Blocking = NON_BLOCKING\n" , Device);
+
+	printf("* %s: Timeout = %d\n" , Device, settings.timeout);
+	printf("* %s: Available bytes = %d\n", Device,  MAX_DEVICE_BYTES - find_value(HP_BYTES_PATH, Minor) - find_value(LP_BYTES_PATH, Minor));
+	printf("* %s: Number of bytes in high priority flow = %d\n" , Device, find_value(HP_BYTES_PATH, Minor));
+	printf("* %s: Number of bytes in low priority flow = %d \n" , Device, find_value(LP_BYTES_PATH, Minor));
 	
 	printf("* %s: Number of waiting threads in high priority flow = %d        \n" , Device, find_value(HP_THREADS_PATH, Minor));
 	printf("* %s: Number of waiting threads in low priority flow = %d         \n" , Device, find_value(LP_THREADS_PATH, Minor));
 	
-	printf("*-----------------------------------------------------------------*\n");
+	printf("*-------------------------------------------------------------------------------*\n");
+    printf("*-------------------------------------------------------------------------------*\n");
+    printf("*-------------------------------------------------------------------------------*\n");
 	
 	
 	
@@ -387,6 +437,20 @@ void get_status(){
 }
 
 
+
+/**
+ * 
+ * Funzione utilizzata per trovare valore di un determinato parametro
+ * relativo al device file con uno specifico minor number
+ * 
+ * 
+ * @path: path del parametro
+ * @minor: minor number del device file
+ * 
+ * 
+ * @Returns: int rappresentante il valore del parametro cercato
+ * 
+ * */
 int find_value(char *path, int minor){
 	
 	int value,it;
@@ -419,13 +483,23 @@ int find_value(char *path, int minor){
 	return value;
 }
 
+
+
+/**
+ * 
+ * Funzione utilizzata per cambiare la disponibilità di un 
+ * device file con un minor number richiesto a run-time.
+ * Viene stampata l'attuale disponibilità del device file 
+ * e si chiede all'utente se la si vuole cambiare.
+ * 
+ * */
 void change_enabling(){
     
     char dec[10];
     char command[64];
     printf("Decide the minor number you want to change enabling: ");
     int minor, enable;
-    //scanf("%d", &minor);
+
     fgets(dec, sizeof(dec), stdin);
           
     dec[strcspn(dec, "\n")] = 0;

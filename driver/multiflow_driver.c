@@ -1,6 +1,20 @@
-/* Multiflow driver driver
- * Author: Matteo Chiacchia
+/**
+ * MULTIFLOW DEVICE DRIVER
+ * 
+ * Author: Matteo Chiacchia (0300177)
  * SOA project
+ * 
+ * 
+ * 
+ * Il progetto permette la creazione e l'installazione di un Linux Device Driver 
+ * che permette di eseguire operazioni di lettura e scrittura. Questo implementa flussi di 
+ * dati ad alta e bassa priorità in cui è possibile specificare il tipo di operazioni
+ * da effettuare. I dati vengono letti seguendo un ordine FIFO e una volta consumati vengono 
+ * eliminati dal flusso. Questo driver dà anche il supporto alla funzione ioctl() per permettere 
+ * all'utente di cambiare il tipo di sessione utilizzata (livello di priorità e tipo di operazioni, 
+ * bloccanti o non bloccanti).
+ * 
+ * 
  * */
 
 
@@ -28,8 +42,10 @@ MODULE_DESCRIPTION("Multi-flow driver file");
 
 
 
-static int Major;
-static int Minor;
+static int Major; //major number del device driver
+static int Minor; //minor number del device file
+
+
 
 static int dev_open(struct inode *inode, struct file *file);
 static int dev_release(struct inode *inode, struct file *file);
@@ -38,7 +54,10 @@ static ssize_t dev_write(struct file *filp, const char *buff, size_t len, loff_t
 static long dev_ioctl(struct file *, unsigned int, unsigned long);
 
 
-/* File operations del driver */
+/**
+ *  File operations del driver.
+ * 
+ * */
 static struct file_operations fops = {
         .owner = THIS_MODULE,
         .write = dev_write,
@@ -49,6 +68,23 @@ static struct file_operations fops = {
 
 };
 
+
+/**
+ * Ioctl qui è utilizzata per la gestione della sessione di I/O
+ * Permette la modfica di
+ * - priority
+ * - blocking
+ * - timeout
+ * 
+ * @filp: puntatore a struct file
+ * @command: ioctl command
+ * @param: valore relativo a command
+ * 
+ * 
+ * Returns: 0
+ * 
+ * 
+ * */
 static long dev_ioctl(struct file *filp, unsigned int command, unsigned long param) {
 
     Session *session = filp->private_data;
@@ -108,7 +144,11 @@ static long dev_ioctl(struct file *filp, unsigned int command, unsigned long par
 
 
 
-/* the actual driver */
+/**
+ * 
+ * Funzione per l'apertura del device file
+ * 
+ * */
 
 static int dev_open(struct inode *inode, struct file *file) {
 
@@ -120,6 +160,7 @@ static int dev_open(struct inode *inode, struct file *file) {
         return -ENODEV;
     }
     
+    // se il device file è stato disattivo non si può aprire una sessione
     if (enabled_device[Minor] == DISABLED) {
         printk("%s: device with minor %d is disabled, and cannot be opened.\n", MODNAME, Minor);
         return -ENOMEM;
@@ -134,7 +175,7 @@ static int dev_open(struct inode *inode, struct file *file) {
     }
     
     
-
+    // sessione di default
     session->priority = HIGH_PRIORITY;
     session->blocking = NON_BLOCKING;
     session->timeout = 0;
@@ -147,7 +188,11 @@ static int dev_open(struct inode *inode, struct file *file) {
 
 }
 
-
+/**
+ * 
+ * Funzione per la chiusura del device file
+ * 
+ * */
 static int dev_release(struct inode *inode, struct file *file){
 
 
@@ -160,12 +205,17 @@ static int dev_release(struct inode *inode, struct file *file){
 }
 
 
+/**
+ * 
+ * Funzione per la scrittura sul device file
+ * 
+ * */
 
 static ssize_t dev_write(struct file *filp, const char *buff, size_t len, loff_t *off) {
 
 
     size_t new_bytes;
-    //int minor = get_minor(filp);
+    
     Object_state* object = &objects[Minor];
 
     Session *session = filp->private_data;
@@ -223,7 +273,11 @@ static ssize_t dev_write(struct file *filp, const char *buff, size_t len, loff_t
 
 
 
-
+/**
+ * 
+ * Funzione per la lettura dal device file
+ * 
+ * */
 static ssize_t dev_read(struct file *filp, char *buff, size_t len, loff_t *off){
 
     Object_state* object = &objects[Minor];
@@ -272,7 +326,12 @@ static ssize_t dev_read(struct file *filp, char *buff, size_t len, loff_t *off){
 }
 
 
-
+/**
+ * 
+ * Inizializzazione e montaggio del modulo kernel. Si allocano tutte le strutture dati
+ * che verranno utilizzate e si registra il modulo nel kernel.
+ * 
+ * */
 int init_module(void){
 
     int i,j;
@@ -302,13 +361,14 @@ int init_module(void){
 
 
         }
-        objects[i].available_bytes = 1000000;
+        objects[i].available_bytes = MAX_DEVICE_BYTES;
         enabled_device[i]=ENABLED;
 
 
     }
 
     Major = __register_chrdev(0, 0, 256, DEVICE_NAME, &fops);
+
     //actually allowed minors are directly controlled within this driver
 
     if (Major < 0) {
@@ -333,6 +393,12 @@ int init_module(void){
 }
 
 
+/**
+ * 
+ * Smontaggio del modulo kernel. Viene liberata la memoria dedicata al modulo
+ * e si de-registra il modulo dal kernel
+ * 
+ * */
 void cleanup_module(void)
 {
 

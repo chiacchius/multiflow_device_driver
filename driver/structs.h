@@ -1,7 +1,12 @@
-//
-// Created by chacchius on 03/10/22.
-//
-
+/**
+ * 
+ * Header contenente le definizioni structs utilizzate
+ * nel codice. 
+ * 
+ * 
+ * Author: Matteo Chiacchia (0300177) 
+ * 
+ * */
 #ifndef SOAPROJECT_STRUCTS_H
 #define SOAPROJECT_STRUCTS_H
 
@@ -70,7 +75,7 @@ typedef struct _packed_work_struct {
 
 
 
-Object_state objects[MINORS];
+Object_state objects[MINORS];       //array di device files 
 
 
 

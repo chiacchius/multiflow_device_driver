@@ -4,7 +4,7 @@
 
 ## SPECIFICA
 Il progetto permette la creazione e l'installazione di un *Linux Device Driver* che permette di eseguire operazioni di lettura e scrittura.
-Questo implementa flussi di dati ad alta e bassa priorità in cui è possibile specificare il tipo di operazioni da effettura
+Questo implementa flussi di dati ad alta e bassa priorità in cui è possibile specificare il tipo di operazioni da effettuare.
 I dati vengono letti seguendo un ordine *FIFO* e una volta consumati vengono eliminati dal flusso. 
 Il flusso **HIGH PRIORITY** offre operazioni di scrittura e lettura sincrone. Il flusso **LOW PRIORITY**, invece, offre operazioni di scrittura asincrone (basate su *delayed work*) ma mantenendo comunque la capacità di notificare l'utente in maniera sincrona. Le operazioni di lettura invece rimangono sincrone. Questo driver dà anche il supporto alla funzione *ioctl()* per permettere all'utente di cambiare il tipo di sessione utilizzata (livello di priorità e tipo di operazioni, bloccanti o non bloccanti). Inoltre l'utente può anche decidere il valore massimo di timeout per le operazioni bloccanti. 
 Il *Driver* mantiene la possibilità di generare 128 possibili *device file*, ognuno avente un minor number compreso tra 0 e 127.

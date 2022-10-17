@@ -1,6 +1,12 @@
-//
-// Created by chacchius on 03/10/22.
-//
+/**
+ * 
+ * Header contenente le definizioni delle MACRO e
+ * dei parametri del modulo kernel (presenti in /sys/module/multiflow_driver/parameters)
+ * 
+ * Author: Matteo Chiacchia (0300177) 
+ * 
+ * 
+ * */
 
 #ifndef SOAPROJECT_VALUES_H
 #define SOAPROJECT_VALUES_H
@@ -21,8 +27,8 @@
 #include <linux/time.h>
 #include <linux/string.h>
 #include <linux/errno.h>
-#include <linux/tty.h>     /* For the tty declarations */
-#include <linux/version.h> /* For LINUX_VERSION_CODE */
+#include <linux/tty.h>     
+#include <linux/version.h> 
 #include <linux/moduleparam.h>
 #include <linux/jiffies.h>
 #include <linux/slab.h>
@@ -32,8 +38,9 @@
 #define DEVICE_NAME "multiflow_device"
 
 #define MINORS 128  // Il numero di minors che il driver può gestire è 128
-#define FLOWS 2
+#define FLOWS 2     // Numero di flussi gestiti da un singolo device
 
+#define MAX_DEVICE_BYTES 1000000 //Numero max di bytes gestibili dal device file
 
 #define LOW_PRIORITY 0
 #define HIGH_PRIORITY 1
@@ -41,10 +48,12 @@
 #define BLOCKING 0
 #define NON_BLOCKING 1
 
-#define DISABLED 0
+// Device abilitato a un'apertura di una sessione o meno
+#define DISABLED 0 
 #define ENABLED 1
 
-#define CHANGE_PRIORITY_IOCTL 3
+// Gestione delle operazioni in ioctl()
+#define CHANGE_PRIORITY_IOCTL 3 
 #define CHANGE_BLOCKING_IOCTL 4
 
 
