@@ -98,11 +98,11 @@ static long dev_ioctl(struct file *filp, unsigned int command, unsigned long par
             if (param == LOW_PRIORITY)
             {
                 printk("%s: User decided to change priority to: LOW_PRIORITY\n", MODNAME);
-                break;
+                
             }
             else if (param == HIGH_PRIORITY){
                 printk("%s: User decided to change priority to: HIGH_PRIORITY\n", MODNAME);
-                break;
+                
             }
             
             session->priority = param;
@@ -118,14 +118,14 @@ static long dev_ioctl(struct file *filp, unsigned int command, unsigned long par
                 printk("%s: User decided to change blocking to: NON_BLOCKING\n", MODNAME);
                 session->timeout=0;
                 session->blocking=NON_BLOCKING;
-                break;
+                
             }
             else if (param > 0){
                 printk("%s: User decided to change blocking to: BLOCKING\n", MODNAME);
                 printk("%s: User decided to change timeout to: %d\n", MODNAME, param);
                 session->timeout=param;
                 session->blocking=BLOCKING;
-                break;
+                
             }
             
             break;
