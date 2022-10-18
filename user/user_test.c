@@ -300,7 +300,6 @@ void new_settings(){
                
 
                 ret = ioctl(fd, 3, decision-1);
-                printf("\n%d\n", decision-1);
                 if (ret == -1) goto exit;
                 
                 
@@ -344,14 +343,14 @@ void new_settings(){
                     decision = atoi(dec);
                     memset(dec, 0, 10);
                     settings.timeout = decision;
-                    settings.blocking == BLOCKING;
+                    settings.blocking = BLOCKING;
                     ret = ioctl(fd, 4, decision);
                     if (ret == -1) goto exit;
 
                 }
                 else{
                     printf("\nYour decision is non-blocking operation so timeout is set to 0 \n");
-                    settings.blocking == NON_BLOCKING;
+                    settings.blocking = NON_BLOCKING;
             	    settings.timeout = 0;
                     ret = ioctl(fd, operation, 0);
                     if (ret == -1) goto exit;
