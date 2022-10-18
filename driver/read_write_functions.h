@@ -219,7 +219,6 @@ void delayed_write(struct work_struct *delayed_work){
     new_block->stream_content = NULL;
     new_block->last_offset_read = 0;
     current_node->next = new_block;
-    flow->obj_head = current_node;
     printk("%s: Written '%s' in block\n", MODNAME, current_node->stream_content) ;
 
     kfree(packed_work);
