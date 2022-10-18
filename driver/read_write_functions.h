@@ -298,6 +298,7 @@ int read_bytes(Object_state *object, Session *session, char* buff, size_t len, i
             printk("%s: can read only from one node: %d total bytes to read\n", MODNAME, bytes_to_read);
 
             ret = copy_to_user(&buff[bytes_read], &current_node->stream_content[current_node->last_offset_read], bytes_to_read);
+
             current_node->last_offset_read += (bytes_to_read-ret);
 
             bytes_read += (bytes_to_read-ret);
@@ -337,7 +338,6 @@ int read_bytes(Object_state *object, Session *session, char* buff, size_t len, i
             int residual_bytes = content_len - current_node->last_offset_read;
 
             ret = copy_to_user(&buff[bytes_read], &current_node->stream_content[current_node->last_offset_read], residual_bytes);
-
             bytes_to_read -= (residual_bytes-ret);
             bytes_read += (residual_bytes-ret);
 

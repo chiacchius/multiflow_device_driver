@@ -116,7 +116,7 @@ int main(int argc, char *argv[]){
     for (int i = 0; i < MINORS; i++)
     {
         sprintf(buff, "mknod %s%d c %d %i\n", path, i, Major, i);
-        printf("\n%s\n", buff);
+       
         system(buff);
 
     }
@@ -300,6 +300,7 @@ void new_settings(){
                
 
                 ret = ioctl(fd, 3, decision-1);
+                printf("\n%d\n", decision-1);
                 if (ret == -1) goto exit;
                 
                 
