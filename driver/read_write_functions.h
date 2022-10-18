@@ -61,7 +61,7 @@ size_t hp_write(Object_state *object, Session *session, const char *buff, size_t
     Object_content *new_content;
 
     lock = try_lock(object, session, minor);
-    printk("%s: User write %d bytes\n", MODNAME, len);
+    printk("%s: User write %ld bytes\n", MODNAME, len);
 
     if (lock==0){
         printk("%s: Cannot acquire the lock, operation failed\n", MODNAME);
@@ -69,7 +69,7 @@ size_t hp_write(Object_state *object, Session *session, const char *buff, size_t
     }
 
 
-    printk("%s: User write %d bytes\n", MODNAME, len);
+    printk("%s: User write %ld bytes\n", MODNAME, len);
     
     //allocazione buffer di scrittura sul device file
     buffer = kzalloc(len + 1, GFP_ATOMIC);
@@ -204,17 +204,19 @@ void delayed_write(struct work_struct *delayed_work){
     int minor = packed_work->minor;
     Object_state *object = &objects[minor];
     Flow *flow = &object->flows[LOW_PRIORITY];
+    Object_content *current_node;
+    Object_content *new_block;
 
     lock(object, minor);
 
-    Object_content *current_node = flow->obj_head;
+    current_node = flow->obj_head;
 
     while (current_node->next != NULL)
         current_node = current_node->next;
 
     current_node->stream_content = (char*)packed_work->data;
 
-    Object_content *new_block = packed_work->new_content;
+    new_block = packed_work->new_content;
     new_block->next = NULL;
     new_block->stream_content = NULL;
     new_block->last_offset_read = 0;
@@ -260,7 +262,9 @@ int read_bytes(Object_state *object, Session *session, char* buff, size_t len, i
 
     int content_len;
     int ret;
+    int bytes_read, bytes_to_read, residual_bytes;
     Object_content *content_to_remove;
+    Object_content *current_node;
     //si effettua un trylock 
     int lock = try_lock(object, session, Minor);
     Flow *flow = &object->flows[priority];
@@ -272,7 +276,7 @@ int read_bytes(Object_state *object, Session *session, char* buff, size_t len, i
         return -1;
     }
 
-    Object_content *current_node = flow->obj_head;
+    current_node = flow->obj_head;
     printk("%s: start reading from first block \n", MODNAME);
 
     // Non sono presenti dati nello stream, quindi viene rilasciato il lock e si ritorna al chiamante.
@@ -284,8 +288,8 @@ int read_bytes(Object_state *object, Session *session, char* buff, size_t len, i
         return -1;
     }
 
-    int bytes_read = 0;
-    int bytes_to_read = len;
+    bytes_read = 0;
+    bytes_to_read = len;
 
     //lettura dei bytes richiesti
     while (1){
@@ -335,7 +339,7 @@ int read_bytes(Object_state *object, Session *session, char* buff, size_t len, i
 
             printk("%s: should be read from more than one node: %d total bytes to read\n", MODNAME, bytes_to_read);
 
-            int residual_bytes = content_len - current_node->last_offset_read;
+            residual_bytes = content_len - current_node->last_offset_read;
 
             ret = copy_to_user(&buff[bytes_read], &current_node->stream_content[current_node->last_offset_read], residual_bytes);
             bytes_to_read -= (residual_bytes-ret);

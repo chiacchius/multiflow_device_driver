@@ -122,7 +122,7 @@ static long dev_ioctl(struct file *filp, unsigned int command, unsigned long par
             }
             else if (param > 0){
                 printk("%s: User decided to change blocking to: BLOCKING\n", MODNAME);
-                printk("%s: User decided to change timeout to: %d\n", MODNAME, param);
+                printk("%s: User decided to change timeout to: %ld\n", MODNAME, param);
                 session->timeout=param;
                 session->blocking=BLOCKING;
                 
@@ -134,7 +134,7 @@ static long dev_ioctl(struct file *filp, unsigned int command, unsigned long par
       
         default:
 
-            printk("%s: Illegal command by user %d\n", MODNAME);
+            printk("%s: Illegal command by user\n", MODNAME);
 
 
     }
@@ -152,9 +152,11 @@ static long dev_ioctl(struct file *filp, unsigned int command, unsigned long par
 
 static int dev_open(struct inode *inode, struct file *file) {
 
+    Session *session;
+
     Minor = get_minor(file);
 
-    Session *session;
+    
 
     if(Minor >= MINORS || Minor<0){
         return -ENODEV;
@@ -283,7 +285,7 @@ static ssize_t dev_read(struct file *filp, char *buff, size_t len, loff_t *off){
     Object_state* object = &objects[Minor];
     int bytes_read;
     Session *session = filp->private_data;
-    Flow *flow = &object->flows[session->priority];
+    
 
 
 
