@@ -338,7 +338,7 @@ int init_module(void){
 
     int i,j;
 
-    //initialize the drive internal state
+    //inizializzazione dello stato del driver
     for(i=0;i<MINORS;i++){
 
         for (j=0; j<FLOWS; j++) {
@@ -371,7 +371,7 @@ int init_module(void){
 
     Major = __register_chrdev(0, 0, 256, DEVICE_NAME, &fops);
 
-    //actually allowed minors are directly controlled within this driver
+    
 
     if (Major < 0) {
         printk("%s: registering driver failed\n",MODNAME);
