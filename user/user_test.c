@@ -507,7 +507,6 @@ void change_enabling(){
     memset(dec, 0, 10);
     printf("%d\n", minor); 
     enable = find_value(ENABLED_PATH, minor);
-    printf("%d\n", enable); 
     
     if (enable == 0){
         printf("Actually the device file is DISABLED, do you want to change the enabling? (y/n): ");
