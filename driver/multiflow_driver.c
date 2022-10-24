@@ -226,7 +226,7 @@ static ssize_t dev_write(struct file *filp, const char *buff, size_t len, loff_t
 
     if (len > object->available_bytes){
         printk("%s: non enough available bytes in driver driver\n", MODNAME);
-        return -ENOMEM;
+        return -1;
     }
 
     if (session->priority == HIGH_PRIORITY){
@@ -261,6 +261,11 @@ static ssize_t dev_write(struct file *filp, const char *buff, size_t len, loff_t
         new_bytes = write_work_schedule(object, session, buff, len, Minor);
 
 
+    }
+
+    if (new_bytes==-1)
+    {
+        return -1;
     }
 
     mutex_unlock(&(flow->operation_synchronizer));
@@ -322,7 +327,10 @@ static ssize_t dev_read(struct file *filp, char *buff, size_t len, loff_t *off){
 
     }
 
-
+    if (bytes_read==-1)
+    {
+        return -1;
+    }
 
     return bytes_read;
 }
