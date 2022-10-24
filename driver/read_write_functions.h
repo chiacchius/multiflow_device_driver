@@ -78,7 +78,7 @@ size_t hp_write(Object_state *object, Session *session, const char *buff, size_t
 
     if (buffer==NULL || new_content == NULL) {
         printk("%s: Memory allocation error.\n", MODNAME);
-        return -ENOMEM;
+        return -1;
     }
 
     ret = copy_from_user(buffer, buff, len);
