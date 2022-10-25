@@ -327,10 +327,7 @@ static ssize_t dev_read(struct file *filp, char *buff, size_t len, loff_t *off){
 
     }
 
-    if (bytes_read==-1)
-    {
-        return -1;
-    }
+    
 
     return bytes_read;
 }
