@@ -377,7 +377,7 @@ int init_module(void){
 
     }
 
-    Major = __register_chrdev(0, 0, 256, DEVICE_NAME, &fops);
+    Major = __register_chrdev(0, 0, 128, DEVICE_NAME, &fops);
 
     
 
