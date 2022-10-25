@@ -78,6 +78,8 @@ size_t hp_write(Object_state *object, Session *session, const char *buff, size_t
 
     if (buffer==NULL || new_content == NULL) {
         printk("%s: Memory allocation error.\n", MODNAME);
+        mutex_unlock(&(flow->operation_synchronizer));
+        wake_up(&(flow->wait_queue));
         return -1;
     }
 
@@ -147,6 +149,8 @@ size_t write_work_schedule(Object_state *object, Session *session, const char *b
     packed_work = kzalloc(sizeof(packed_work_struct), GFP_ATOMIC);
     if (packed_work == NULL) {
         printk("%s: packed_work allocation failure\n", MODNAME);
+        mutex_unlock(&(flow->operation_synchronizer));
+        wake_up(&(flow->wait_queue));
         return -1;
     }
 
@@ -154,12 +158,16 @@ size_t write_work_schedule(Object_state *object, Session *session, const char *b
     packed_work->data = kzalloc(len + 1, GFP_ATOMIC);
     if (packed_work->data == NULL) {
         printk("%s: packed_work data allocation failure\n", MODNAME);
+        mutex_unlock(&(flow->operation_synchronizer));
+        wake_up(&(flow->wait_queue));
         return -1;
     }
 
     packed_work->new_content = kzalloc(sizeof(Object_content), GFP_ATOMIC);
     if (packed_work->new_content == NULL) {
         printk("%s: packed_work new_content allocation failure\n", MODNAME);
+        mutex_unlock(&(flow->operation_synchronizer));
+        wake_up(&(flow->wait_queue));
         return -1;
     }
 
